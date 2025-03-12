@@ -141,6 +141,39 @@ Naukri Guru is revolutionizing the Indian job search experience by providing sma
 - **AWS WAF** for security
 - **AWS KMS** for key management
 
+## 🎨 Color Theme
+
+Our color theme is designed to reflect trust, professionalism, and Indian cultural elements while maintaining modern design principles:
+
+### Primary Colors
+- **Deep Blue** (#12232E)
+  - Represents trust, stability, and professionalism
+  - Used for primary backgrounds and key UI elements
+
+- **Accent Orange** (#FF6B6B)
+  - Symbolizes energy and Indian cultural vibrancy
+  - Used for CTAs and important highlights
+
+- **Soft Purple** (#7D94B5)
+  - Represents innovation and technology
+  - Used for secondary elements and gradients
+
+### Supporting Colors
+- **Pure White** (#FFFFFF)
+  - Creates clean, modern spaces
+  - Used for content areas and text on dark backgrounds
+
+- **Light Gray** (#F5F7FA)
+  - Provides subtle contrast
+  - Used for backgrounds and section separators
+
+### Usage Guidelines
+- Deep Blue serves as the primary brand color
+- Accent Orange is used sparingly for important actions
+- Soft Purple adds depth and sophistication
+- White and Light Gray create breathing space and improve readability
+- Color contrast ratios follow WCAG 2.1 accessibility guidelines
+
 ## 📋 Prerequisites
 
 - Node.js 18.x or higher
