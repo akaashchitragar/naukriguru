@@ -294,7 +294,29 @@ The application will be automatically deployed to AWS Amplify Hosting with a sec
 
 ## 📄 License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+MIT License
+
+Copyright (c) 2024 Naukri Guru
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.
+
+For more information, please refer to the [LICENSE](LICENSE) file in the repository.
 
 ## 🙏 Acknowledgments
 
@@ -312,24 +334,85 @@ For support:
 
 ## 💰 Pricing Plans
 
-### Basic Plan (Free)
-- 1 resume analysis per day
-- Basic ATS score
-- Standard processing time
+### Basic Plan (₹99/month)
+- **Resume Analysis**
+  - 5 resume matches per month
+  - Basic ATS compatibility check
+  - Core skills gap analysis
+  - Basic keyword optimization
 
-### Pro Plan (₹499/month)
-- Unlimited resume analysis
-- Detailed ATS recommendations
-- Priority processing
-- Premium templates
-- Email support
+- **Features**
+  - PDF resume parsing
+  - Job description analysis
+  - Basic match rate calculation
+  - Essential feedback
+  - Email support
 
-### Enterprise Plan (Custom Pricing)
-- Bulk resume processing
-- API access
-- Custom integration
-- Dedicated support
-- Custom features
+### Pro Plan (₹199/month)
+- **Everything in Basic, plus:**
+- **Enhanced Analysis**
+  - Unlimited resume matches
+  - Advanced ATS optimization
+  - Industry-specific recommendations
+  - Skill benchmarking
+  - Automated keyword suggestions
+
+- **Premium Features**
+  - Priority processing
+  - Multiple resume versions
+  - Resume templates library
+  - Job market insights
+  - Chat support
+
+### Ultimate Plan (₹299/month)
+- **Everything in Pro, plus:**
+- **Advanced Features**
+  - AI-powered resume rewriting
+  - Interview preparation tips
+  - Salary insights
+  - Industry trends analysis
+  - Career path recommendations
+
+- **Expert Services**
+  - Priority 24/7 support
+  - One-on-one expert consultation
+  - Custom resume templates
+  - LinkedIn profile optimization
+  - Job search strategy session
+
+
+### Compare Plans
+
+| Feature                          | Basic          | Pro            | Ultimate       |
+|----------------------------------|----------------|----------------|----------------|
+| Price                            | ₹99/month      | ₹199/month    | ₹299/month    |
+| Resume Matches                   | 5/month        | Unlimited      | Unlimited      |
+| ATS Optimization                 | Basic          | Advanced       | Advanced+      |
+| Match Rate Analysis              | ✓              | ✓              | ✓              |
+| Keyword Optimization             | Basic          | Advanced       | Advanced+      |
+| Resume Templates                 | -              | 50+            | 100+           |
+| Skills Gap Analysis             | Basic          | Detailed       | Comprehensive  |
+| Job Market Insights             | -              | ✓              | ✓              |
+| Career Path Planning            | -              | -              | ✓              |
+| Expert Consultation             | -              | -              | Monthly        |
+| Support                         | Email          | Chat           | 24/7 Priority  |
+| Processing Speed                | Standard       | Priority       | Instant        |
+
+### All Plans Include
+- Secure document handling
+- Regular feature updates
+- Mobile-friendly interface
+- Basic customer support
+- SSL encryption
+- Regular backups
+
+### Payment Options
+- All major credit/debit cards
+- UPI payments
+- Net banking
+- EMI options available
+- Auto-renewal option
+- Money-back guarantee
 
 ## 💳 Payment Integration
 
