@@ -43,8 +43,8 @@ export default function LoginForm() {
   };
 
   return (
-    <div className="w-full max-w-md mx-auto p-6 bg-white rounded-lg shadow-md">
-      <h2 className="text-2xl font-bold mb-6 text-center text-indigo-700">
+    <div className="w-full max-w-md mx-auto">
+      <h2 className="text-2xl font-bold mb-6 text-center text-deep-blue">
         {isLogin ? 'Sign In' : 'Create Account'}
       </h2>
 
@@ -63,7 +63,7 @@ export default function LoginForm() {
             type="email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent-orange focus:border-transparent"
             required
           />
         </div>
@@ -76,7 +76,7 @@ export default function LoginForm() {
             type="password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
-            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500"
+            className="w-full px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-accent-orange focus:border-transparent"
             required
           />
         </div>
@@ -84,27 +84,36 @@ export default function LoginForm() {
         <button
           type="submit"
           disabled={loading}
-          className={`w-full py-2 px-4 rounded-md text-white font-medium ${
+          className={`w-full py-3 px-4 rounded-lg text-white font-medium transition-all duration-200 ${
             loading
-              ? 'bg-indigo-400 cursor-not-allowed'
-              : 'bg-indigo-600 hover:bg-indigo-700'
+              ? 'bg-gray-400 cursor-not-allowed'
+              : 'bg-accent-orange hover:bg-opacity-90 shadow-md hover:shadow-lg'
           }`}
         >
           {loading ? 'Processing...' : isLogin ? 'Sign In' : 'Sign Up'}
         </button>
       </form>
 
-      <div className="mt-4">
+      <div className="mt-6 relative">
+        <div className="absolute inset-0 flex items-center">
+          <div className="w-full border-t border-gray-200"></div>
+        </div>
+        <div className="relative flex justify-center text-sm">
+          <span className="px-2 bg-white text-gray-500">Or continue with</span>
+        </div>
+      </div>
+
+      <div className="mt-6">
         <button
           onClick={handleGoogleSignIn}
           disabled={loading}
-          className="w-full py-2 px-4 border border-gray-300 rounded-md flex items-center justify-center space-x-2 hover:bg-gray-50"
+          className="w-full py-3 px-4 border border-gray-200 rounded-lg flex items-center justify-center space-x-2 hover:bg-gray-50 transition-all duration-200"
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"
             viewBox="0 0 48 48"
-            width="24px"
-            height="24px"
+            width="20px"
+            height="20px"
           >
             <path
               fill="#FFC107"
@@ -123,14 +132,14 @@ export default function LoginForm() {
               d="M43.611,20.083H42V20H24v8h11.303c-0.792,2.237-2.231,4.166-4.087,5.571c0.001-0.001,0.002-0.001,0.003-0.002l6.19,5.238C36.971,39.205,44,34,44,24C44,22.659,43.862,21.35,43.611,20.083z"
             />
           </svg>
-          <span>Sign in with Google</span>
+          <span className="font-medium">Sign in with Google</span>
         </button>
       </div>
 
       <div className="mt-6 text-center">
         <button
           onClick={() => setIsLogin(!isLogin)}
-          className="text-indigo-600 hover:text-indigo-800"
+          className="text-deep-blue hover:text-accent-orange transition-colors"
         >
           {isLogin
             ? "Don't have an account? Sign Up"
