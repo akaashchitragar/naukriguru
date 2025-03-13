@@ -2,7 +2,19 @@ import os
 import json
 import google.generativeai as genai  # type: ignore
 from typing import Dict, Any, List
+import hashlib
+import functools
+import asyncio
+from datetime import datetime, timedelta
 
+# Simple in-memory cache for analysis results
+_analysis_cache = {}
+_cache_ttl = timedelta(hours=24)  # Cache results for 24 hours
+
+def _generate_cache_key(resume_text: str, job_description: str) -> str:
+    """Generate a unique cache key based on resume text and job description"""
+    combined = f"{resume_text}|{job_description}"
+    return hashlib.md5(combined.encode()).hexdigest()
 
 async def analyze_resume_with_gemini(
     resume_text: str, job_description: str
@@ -17,13 +29,31 @@ async def analyze_resume_with_gemini(
     Returns:
         Dict containing analysis results
     """
+    # Check cache first
+    cache_key = _generate_cache_key(resume_text, job_description)
+    if cache_key in _analysis_cache:
+        cached_result, timestamp = _analysis_cache[cache_key]
+        if datetime.now() - timestamp < _cache_ttl:
+            print("Using cached analysis result")
+            return cached_result
+
+    # Truncate long texts to reduce token usage
+    max_resume_length = 8000  # Approximately 2000 tokens
+    max_job_desc_length = 2000  # Approximately 500 tokens
+    
+    if len(resume_text) > max_resume_length:
+        resume_text = resume_text[:max_resume_length] + "..."
+    
+    if len(job_description) > max_job_desc_length:
+        job_description = job_description[:max_job_desc_length] + "..."
+    
     try:
-        # Configure the model
+        # Configure the model with optimized settings
         generation_config = {
-            "temperature": 0.2,
-            "top_p": 0.8,
-            "top_k": 40,
-            "max_output_tokens": 2048,
+            "temperature": 0.1,  # Lower temperature for more deterministic results
+            "top_p": 0.7,
+            "top_k": 20,
+            "max_output_tokens": 1024,  # Reduced token limit for faster response
         }
         
         model = genai.GenerativeModel(
@@ -31,10 +61,9 @@ async def analyze_resume_with_gemini(
             generation_config=generation_config
         )
 
-        # Create the prompt
+        # Create a more structured and efficient prompt
         prompt = f"""
-        You are an expert resume analyzer and career coach.
-        Analyze the following resume against the job description.
+        You are an expert resume analyzer. Analyze this resume against the job description.
         
         RESUME:
         {resume_text}
@@ -42,19 +71,20 @@ async def analyze_resume_with_gemini(
         JOB DESCRIPTION:
         {job_description}
         
-        Provide a detailed analysis in JSON format with the following structure:
+        Respond with ONLY a JSON object in this exact format:
         {{
-            "match_score": (a number between 0-100 representing overall match),
-            "feedback": (detailed feedback about the resume's match with the job),
-            "skills_match": [list of skills from the resume that match the job requirements],
-            "improvement_areas": [specific suggestions to improve the resume for this job]
+            "match_score": <number 0-100>,
+            "feedback": "<concise feedback, max 200 words>",
+            "skills_match": ["<skill1>", "<skill2>", ...],
+            "improvement_areas": ["<suggestion1>", "<suggestion2>", ...]
         }}
-        
-        Return ONLY the JSON object with no additional text.
         """
 
-        # Generate the response
-        response = await model.generate_content_async(prompt)
+        # Generate the response with timeout
+        response = await asyncio.wait_for(
+            model.generate_content_async(prompt),
+            timeout=15  # 15 second timeout
+        )
         response_text = response.text
 
         # Extract JSON from response
@@ -66,10 +96,13 @@ async def analyze_resume_with_gemini(
             import re
 
             json_match = re.search(
-                r"```json\s*(.*?)\s*```", response_text, re.DOTALL
+                r"```json\s*(.*?)\s*```|```\s*(.*?)\s*```|{\s*\"match_score\".*}",
+                response_text,
+                re.DOTALL
             )
             if json_match:
-                result = json.loads(json_match.group(1))
+                json_str = json_match.group(1) or json_match.group(2) or json_match.group(0)
+                result = json.loads(json_str)
             else:
                 # Fallback to a default structure
                 result = {
@@ -94,9 +127,27 @@ async def analyze_resume_with_gemini(
                     result[field] = "No specific feedback available."
                 else:
                     result[field] = []
+        
+        # Limit the size of arrays to improve response time
+        if len(result.get("skills_match", [])) > 10:
+            result["skills_match"] = result["skills_match"][:10]
+            
+        if len(result.get("improvement_areas", [])) > 5:
+            result["improvement_areas"] = result["improvement_areas"][:5]
 
+        # Cache the result
+        _analysis_cache[cache_key] = (result, datetime.now())
+        
         return result
 
+    except asyncio.TimeoutError:
+        print("Analysis timed out")
+        return {
+            "match_score": 0,
+            "feedback": "Analysis timed out. Please try again with a shorter resume or job description.",
+            "skills_match": [],
+            "improvement_areas": ["Try simplifying your resume or job description."],
+        }
     except Exception as e:
         print(f"Error analyzing resume: {str(e)}")
         return {

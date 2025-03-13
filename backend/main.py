@@ -11,6 +11,8 @@ from services.database import FirestoreDB
 from services.auth import get_current_user
 from typing import Dict, Any, Optional
 import uvicorn
+import asyncio
+from fastapi import BackgroundTasks
 
 # Load environment variables
 load_dotenv()
@@ -34,8 +36,8 @@ app.add_middleware(
     CORSMiddleware,
     allow_origins=["http://localhost:3000", "http://localhost:3001", "http://192.168.29.115:3000", "http://192.168.29.115:3001"],
     allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
+    allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+    allow_headers=["Content-Type", "Authorization", "Accept", "Origin", "X-Requested-With"],
 )
 
 
@@ -53,9 +55,19 @@ async def analyze_resume_endpoint(
     try:
         user_id = user_info["user_id"]
 
-        # Read and save the PDF file
+        # Read the PDF file
         file_content = await file.read()
-        file_url = save_resume_file(user_id, file.filename, file_content)
+        
+        # Start file saving and text extraction in parallel
+        save_task = asyncio.create_task(
+            asyncio.to_thread(save_resume_file, user_id, file.filename, file_content)
+        )
+        extract_task = asyncio.create_task(
+            asyncio.to_thread(extract_text_from_pdf, file_content)
+        )
+        
+        # Wait for both tasks to complete
+        file_url, resume_text = await asyncio.gather(save_task, extract_task)
 
         # Create resume record
         resume_data = {"file_url": file_url, "file_name": file.filename}
@@ -64,23 +76,22 @@ async def analyze_resume_endpoint(
         if not resume_id:
             raise HTTPException(status_code=500, detail="Failed to save resume")
 
-        # Extract text from PDF
-        resume_text = extract_text_from_pdf(file_content)
-
         # Analyze resume
         analysis_result = await analyze_resume_with_gemini(resume_text, job_description)
 
-        # Save analysis result
+        # Save analysis result in background
         analysis_data = {"job_description": job_description, **analysis_result}
-        analysis_id = FirestoreDB.create_analysis(user_id, resume_id, analysis_data)
-
-        if not analysis_id:
-            raise HTTPException(status_code=500, detail="Failed to save analysis")
+        
+        # Use background task for database operations
+        background_tasks = BackgroundTasks()
+        background_tasks.add_task(
+            FirestoreDB.create_analysis, user_id, resume_id, analysis_data
+        )
 
         return {
             "resume_id": resume_id,
-            "analysis_id": analysis_id,
             "result": analysis_result,
+            "message": "Analysis saved in background"
         }
 
     except Exception as e:
@@ -105,6 +116,20 @@ async def get_my_resumes(user_info: Dict[str, Any] = Depends(get_current_user)):
         user_id = user_info["user_id"]
         resumes = FirestoreDB.get_user_resumes(user_id)
         return {"resumes": resumes}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.delete("/users/me/resumes/{resume_id}")
+async def delete_resume(resume_id: str, user_info: Dict[str, Any] = Depends(get_current_user)):
+    try:
+        user_id = user_info["user_id"]
+        success = FirestoreDB.delete_resume(user_id, resume_id)
+        
+        if not success:
+            raise HTTPException(status_code=404, detail="Resume not found or you don't have permission to delete it")
+            
+        return {"success": True, "message": "Resume deleted successfully"}
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 

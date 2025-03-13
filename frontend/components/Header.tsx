@@ -3,14 +3,16 @@
 import React from 'react';
 import { User } from 'firebase/auth';
 import Link from 'next/link';
+import { motion } from 'framer-motion';
 
 interface HeaderProps {
   user: User | null;
   activeTab: 'analyze' | 'profile';
   onTabChange: (tab: 'analyze' | 'profile') => void;
+  onLoginClick?: () => void;
 }
 
-export default function Header({ user, activeTab, onTabChange }: HeaderProps) {
+export default function Header({ user, activeTab, onTabChange, onLoginClick }: HeaderProps) {
   return (
     <header className="bg-deep-blue text-white shadow-lg">
       <div className="container mx-auto px-4 py-4">
@@ -31,7 +33,7 @@ export default function Header({ user, activeTab, onTabChange }: HeaderProps) {
             </Link>
           </div>
           
-          {user && (
+          {user ? (
             <nav className="flex space-x-4">
               <button
                 onClick={() => onTabChange('analyze')}
@@ -54,6 +56,38 @@ export default function Header({ user, activeTab, onTabChange }: HeaderProps) {
                 My Profile
               </button>
             </nav>
+          ) : (
+            <div className="flex items-center space-x-4">
+              <nav className="hidden md:flex space-x-6 mr-8">
+                <Link href="#features" className="text-gray-300 hover:text-white transition-colors">
+                  Features
+                </Link>
+                <Link href="#pricing" className="text-gray-300 hover:text-white transition-colors">
+                  Pricing
+                </Link>
+                <Link href="#testimonials" className="text-gray-300 hover:text-white transition-colors">
+                  Testimonials
+                </Link>
+              </nav>
+              
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={onLoginClick}
+                className="px-5 py-2 rounded-md bg-accent-orange text-white font-medium shadow-md transition-all hover:bg-accent-orange/90"
+              >
+                Sign In
+              </motion.button>
+              <Link href="/auth/signup">
+                <motion.button
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                  className="px-5 py-2 rounded-md border border-white/30 bg-white/10 text-white font-medium backdrop-blur-sm transition-all hover:bg-white/20"
+                >
+                  Sign Up
+                </motion.button>
+              </Link>
+            </div>
           )}
         </div>
       </div>

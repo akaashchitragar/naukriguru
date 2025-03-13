@@ -119,3 +119,34 @@ class FirestoreDB:
         except Exception as e:
             print(f"Error getting user resumes: {str(e)}")
             return []
+
+    @staticmethod
+    def delete_resume(user_id: str, resume_id: str) -> bool:
+        """
+        Delete a resume (soft delete by updating status)
+        """
+        try:
+            # Get the resume document
+            resume_ref = db.collection("resumes").document(resume_id)
+            resume = resume_ref.get()
+            
+            # Check if resume exists and belongs to the user
+            if not resume.exists:
+                print(f"Resume {resume_id} not found")
+                return False
+                
+            resume_data = resume.to_dict()
+            if resume_data.get("user_id") != user_id:
+                print(f"Resume {resume_id} does not belong to user {user_id}")
+                return False
+            
+            # Soft delete by updating status
+            resume_ref.update({
+                "status": "deleted",
+                "updated_at": firestore.SERVER_TIMESTAMP
+            })
+            
+            return True
+        except Exception as e:
+            print(f"Error deleting resume: {str(e)}")
+            return False
