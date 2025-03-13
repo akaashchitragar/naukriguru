@@ -1,6 +1,7 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { useAuth } from '@/lib/auth';
 import Header from '@/components/Header';
 import ResumeAnalyzer from '@/components/ResumeAnalyzer';
@@ -17,8 +18,15 @@ import LoginModal from '@/components/LoginModal';
 
 export default function Home() {
   const { user, loading } = useAuth();
+  const router = useRouter();
   const [activeTab, setActiveTab] = useState<'analyze' | 'profile'>('analyze');
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
+
+  useEffect(() => {
+    if (!loading && user) {
+      router.push('/dashboard');
+    }
+  }, [user, loading, router]);
 
   const handleOpenLoginModal = () => {
     setIsLoginModalOpen(true);
@@ -39,21 +47,14 @@ export default function Home() {
     );
   }
 
-  // If user is logged in, show the app interface
+  // If user is logged in, they will be redirected in the useEffect
   if (user) {
     return (
-      <div className="min-h-screen bg-light-gray">
-        <Header 
-          user={user} 
-          activeTab={activeTab} 
-          onTabChange={setActiveTab} 
-        />
-        
-        <main className="container mx-auto py-8 px-4">
-          {activeTab === 'analyze' ? <ResumeAnalyzer /> : <UserProfile />}
-        </main>
-        
-        <Footer />
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center">
+          <div className="inline-block animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-accent-orange"></div>
+          <p className="mt-4 text-gray-600">Redirecting to dashboard...</p>
+        </div>
       </div>
     );
   }
@@ -63,8 +64,8 @@ export default function Home() {
     <div className="min-h-screen">
       <Header 
         user={null} 
-        activeTab={activeTab} 
-        onTabChange={setActiveTab}
+        activeTab="analyze" 
+        onTabChange={() => {}}
         onLoginClick={handleOpenLoginModal}
       />
       

@@ -24,14 +24,18 @@ interface Analysis {
   created_at: any;
 }
 
-export default function UserProfile() {
+interface UserProfileProps {
+  initialActiveTab?: 'analyses' | 'resumes' | 'checklist' | 'profile';
+}
+
+export default function UserProfile({ initialActiveTab = 'analyses' }: UserProfileProps) {
   const { user, logout } = useAuth();
   const { showToast } = useToast();
   const [resumes, setResumes] = useState<Resume[]>([]);
   const [analyses, setAnalyses] = useState<Analysis[]>([]);
   const [loading, setLoading] = useState(true);
   const [uploading, setUploading] = useState(false);
-  const [activeTab, setActiveTab] = useState<'analyses' | 'resumes' | 'checklist'>('analyses');
+  const [activeTab, setActiveTab] = useState<'analyses' | 'resumes' | 'checklist' | 'profile'>(initialActiveTab);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {

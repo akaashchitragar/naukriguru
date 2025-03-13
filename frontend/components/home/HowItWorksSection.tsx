@@ -59,7 +59,7 @@ const HowItWorksSection: React.FC<HowItWorksSectionProps> = ({ onLoginClick }) =
       <div className="container mx-auto px-4 md:px-6">
         <div className="mx-auto max-w-3xl text-center">
           <h2 className="mb-4 text-3xl font-bold text-deep-blue md:text-4xl">
-            How Naukri Guru Works
+            How Job Craft Works
           </h2>
           <p className="mb-16 text-lg text-gray-600">
             Our simple 4-step process helps you optimize your resume for the Indian job market

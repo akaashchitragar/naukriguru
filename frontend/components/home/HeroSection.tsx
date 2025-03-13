@@ -36,7 +36,7 @@ const HeroSection: React.FC<HeroSectionProps> = ({ onLoginClick }) => {
               Your <span className="text-accent-orange">AI Career Companion</span> for the Indian Job Market
             </h1>
             <p className="mb-8 text-lg text-gray-300 md:pr-8">
-              Naukri Guru revolutionizes your job search with smart, localized resume optimization and job matching services built specifically for the Indian market.
+              Job Craft revolutionizes your job search with smart, localized resume optimization and job matching services built specifically for the Indian market.
             </p>
             <div className="flex flex-col space-y-4 sm:flex-row sm:space-y-0 sm:space-x-4 md:justify-start">
               <Link 
@@ -79,8 +79,8 @@ const HeroSection: React.FC<HeroSectionProps> = ({ onLoginClick }) => {
                 <div className="absolute inset-0 flex items-center justify-center">
                   <div className="relative h-[350px] w-[350px] md:h-[450px] md:w-[450px]">
                     <Image
-                      src="/hero-illustration.svg"
-                      alt="Resume Analysis Illustration"
+                      src="/resume-analysis-illustration.png"
+                      alt="AI Resume Analysis Illustration"
                       fill
                       priority
                       className="object-contain"

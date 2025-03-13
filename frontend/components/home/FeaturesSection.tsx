@@ -75,7 +75,7 @@ const FeaturesSection: React.FC<FeaturesSectionProps> = ({ onLoginClick }) => {
             Powerful Features to Boost Your Career
           </h2>
           <p className="mb-16 text-lg text-gray-600">
-            Naukri Guru provides a comprehensive set of tools to help you optimize your resume and increase your chances of landing your dream job.
+            Job Craft provides a comprehensive set of tools to help you optimize your resume and increase your chances of landing your dream job.
           </p>
         </div>
 

@@ -7,7 +7,7 @@ import { ToastProvider } from '@/components/Toast';
 const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
-  title: 'Naukri Guru - AI Resume Analysis',
+  title: 'JobCraft.in - AI Resume Analysis',
   description: 'AI-powered resume analysis for job seekers',
 };
 

@@ -37,7 +37,7 @@ const CTASection: React.FC<CTASectionProps> = ({ onLoginClick }) => {
               viewport={{ once: true }}
               className="mb-8 text-lg text-gray-300"
             >
-              Join thousands of job seekers who have already improved their chances of landing their dream job with Naukri Guru.
+              Join thousands of job seekers who have already improved their chances of landing their dream job with Job Craft.
             </motion.p>
             <motion.div
               initial={{ opacity: 0, y: 20 }}

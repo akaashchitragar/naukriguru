@@ -11,7 +11,7 @@ const testimonials = [
     company: 'TCS',
     image: '/testimonials/testimonial-1.jpg',
     content:
-      'Naukri Guru helped me optimize my resume for tech roles. The AI feedback was spot-on and helped me highlight the right skills. I got calls from 3 companies within a week!',
+      'Job Craft helped me optimize my resume for tech roles. The AI feedback was spot-on and helped me highlight the right skills. I got calls from 3 companies within a week!',
   },
   {
     name: 'Rahul Verma',
@@ -27,7 +27,7 @@ const testimonials = [
     company: 'Amazon',
     image: '/testimonials/testimonial-3.jpg',
     content:
-      'As someone transitioning into data science, Naukri Guru was invaluable. It helped me identify skill gaps and suggested specific improvements that made my resume stand out.',
+      'As someone transitioning into data science, Job Craft was invaluable. It helped me identify skill gaps and suggested specific improvements that made my resume stand out.',
   },
 ];
 
@@ -40,7 +40,7 @@ const TestimonialsSection = () => {
             Success Stories
           </h2>
           <p className="mb-16 text-lg text-gray-300">
-            See how Naukri Guru has helped job seekers across India land their dream jobs
+            See how Job Craft has helped job seekers across India land their dream jobs
           </p>
         </div>
 
