@@ -6,7 +6,6 @@ import Header from '@/components/Header';
 import ResumeAnalyzer from '@/components/ResumeAnalyzer';
 import LoginForm from '@/components/LoginForm';
 import UserProfile from '@/components/UserProfile';
-import Image from 'next/image';
 
 export default function Home() {
   const { user, loading } = useAuth();
