@@ -4,7 +4,7 @@ import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import { useAuth } from '@/lib/auth';
 import { ApiClient } from '@/lib/api';
-import { useToast } from '@/components/Toast';
+import { useToast, ToastType } from '@/components/Toast';
 import { handleAsyncOperation } from '@/lib/error-utils';
 
 const apiClient = new ApiClient();
@@ -26,43 +26,46 @@ export default function Dashboard() {
     recentAnalyses: [],
   });
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(false);
+
+  const fetchDashboardData = async () => {
+    if (!user) return;
+    
+    setLoading(true);
+    setError(false);
+    
+    try {
+      const [userResumes, userAnalyses] = await Promise.all([
+        apiClient.getUserResumes().catch(() => []),
+        apiClient.getUserAnalyses(5).catch(() => [])
+      ]);
+      
+      // Calculate average score
+      const scores = userAnalyses.map(analysis => analysis.match_score);
+      const averageScore = scores.length > 0 
+        ? scores.reduce((a, b) => a + b, 0) / scores.length 
+        : 0;
+      
+      setStats({
+        totalResumes: userResumes.length,
+        totalAnalyses: userAnalyses.length,
+        averageScore: Math.round(averageScore),
+        recentAnalyses: userAnalyses.slice(0, 5),
+      });
+    } catch (err) {
+      console.error('Error fetching dashboard data:', err);
+      setError(true);
+      showToast(ToastType.ERROR, 'Failed to load dashboard data');
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
-    async function fetchDashboardData() {
-      if (user) {
-        await handleAsyncOperation(
-          async () => {
-            const [userResumes, userAnalyses] = await Promise.all([
-              apiClient.getUserResumes(),
-              apiClient.getUserAnalyses(5) // Get only 5 most recent analyses
-            ]);
-            
-            // Calculate average score
-            const scores = userAnalyses.map(analysis => analysis.match_score);
-            const averageScore = scores.length > 0 
-              ? scores.reduce((a, b) => a + b, 0) / scores.length 
-              : 0;
-            
-            setStats({
-              totalResumes: userResumes.length,
-              totalAnalyses: userAnalyses.length,
-              averageScore: Math.round(averageScore),
-              recentAnalyses: userAnalyses.slice(0, 5),
-            });
-            
-            return { userResumes, userAnalyses };
-          },
-          {
-            setLoading,
-            showToast,
-            errorMessage: 'Failed to load dashboard data'
-          }
-        );
-      }
+    if (user) {
+      fetchDashboardData();
     }
-
-    fetchDashboardData();
-  }, [user, showToast]);
+  }, [user]);
 
   const quickActions = [
     {
@@ -97,16 +100,27 @@ export default function Dashboard() {
     },
   ];
 
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center h-64">
-        <div className="text-center">
-          <div className="inline-block animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-accent-orange"></div>
-          <p className="mt-2 text-gray-600">Loading dashboard...</p>
-        </div>
+  // Show quick actions even if data is loading
+  const renderQuickActions = () => (
+    <div>
+      <h2 className="text-xl font-semibold text-deep-blue mb-3">Quick Actions</h2>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+        {quickActions.map((action, index) => (
+          <Link 
+            key={index} 
+            href={action.href}
+            className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow"
+          >
+            <div className="flex flex-col items-center text-center">
+              {action.icon}
+              <h3 className="mt-4 font-semibold text-deep-blue">{action.title}</h3>
+              <p className="mt-2 text-sm text-gray-600">{action.description}</p>
+            </div>
+          </Link>
+        ))}
       </div>
-    );
-  }
+    </div>
+  );
 
   return (
     <div className="space-y-4">
@@ -114,69 +128,65 @@ export default function Dashboard() {
       
       {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-        <div className="bg-white rounded-lg shadow-md p-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-gray-500">Total Resumes</p>
-              <p className="text-3xl font-bold text-deep-blue">{stats.totalResumes}</p>
+        {loading ? (
+          // Show skeleton loaders for stats
+          Array(3).fill(0).map((_, i) => (
+            <div key={i} className="bg-white rounded-lg shadow-md p-6 animate-pulse">
+              <div className="h-4 bg-gray-200 rounded w-1/3 mb-2"></div>
+              <div className="h-8 bg-gray-200 rounded w-1/4"></div>
             </div>
-            <div className="h-12 w-12 bg-blue-100 rounded-full flex items-center justify-center">
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-deep-blue" viewBox="0 0 20 20" fill="currentColor">
-                <path fillRule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4z" clipRule="evenodd" />
-              </svg>
+          ))
+        ) : (
+          // Show actual stats
+          <>
+            <div className="bg-white rounded-lg shadow-md p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-gray-500">Total Resumes</p>
+                  <p className="text-3xl font-bold text-deep-blue">{stats.totalResumes}</p>
+                </div>
+                <div className="h-12 w-12 bg-blue-100 rounded-full flex items-center justify-center">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-deep-blue" viewBox="0 0 20 20" fill="currentColor">
+                    <path fillRule="evenodd" d="M4 4a2 2 0 012-2h4.586A2 2 0 0112 2.586L15.414 6A2 2 0 0116 7.414V16a2 2 0 01-2 2H6a2 2 0 01-2-2V4z" clipRule="evenodd" />
+                  </svg>
+                </div>
+              </div>
             </div>
-          </div>
-        </div>
-        
-        <div className="bg-white rounded-lg shadow-md p-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-gray-500">Total Analyses</p>
-              <p className="text-3xl font-bold text-deep-blue">{stats.totalAnalyses}</p>
+            
+            <div className="bg-white rounded-lg shadow-md p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-gray-500">Total Analyses</p>
+                  <p className="text-3xl font-bold text-deep-blue">{stats.totalAnalyses}</p>
+                </div>
+                <div className="h-12 w-12 bg-orange-100 rounded-full flex items-center justify-center">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-accent-orange" viewBox="0 0 20 20" fill="currentColor">
+                    <path d="M2 10a8 8 0 018-8v8h8a8 8 0 11-16 0z" />
+                    <path d="M12 2.252A8.014 8.014 0 0117.748 8H12V2.252z" />
+                  </svg>
+                </div>
+              </div>
             </div>
-            <div className="h-12 w-12 bg-orange-100 rounded-full flex items-center justify-center">
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-accent-orange" viewBox="0 0 20 20" fill="currentColor">
-                <path d="M2 10a8 8 0 018-8v8h8a8 8 0 11-16 0z" />
-                <path d="M12 2.252A8.014 8.014 0 0117.748 8H12V2.252z" />
-              </svg>
+            
+            <div className="bg-white rounded-lg shadow-md p-6">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm text-gray-500">Average Score</p>
+                  <p className="text-3xl font-bold text-deep-blue">{stats.averageScore}%</p>
+                </div>
+                <div className="h-12 w-12 bg-green-100 rounded-full flex items-center justify-center">
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-green-600" viewBox="0 0 20 20" fill="currentColor">
+                    <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
+                  </svg>
+                </div>
+              </div>
             </div>
-          </div>
-        </div>
-        
-        <div className="bg-white rounded-lg shadow-md p-6">
-          <div className="flex items-center justify-between">
-            <div>
-              <p className="text-sm text-gray-500">Average Score</p>
-              <p className="text-3xl font-bold text-deep-blue">{stats.averageScore}%</p>
-            </div>
-            <div className="h-12 w-12 bg-green-100 rounded-full flex items-center justify-center">
-              <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-green-600" viewBox="0 0 20 20" fill="currentColor">
-                <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clipRule="evenodd" />
-              </svg>
-            </div>
-          </div>
-        </div>
+          </>
+        )}
       </div>
       
-      {/* Quick Actions */}
-      <div>
-        <h2 className="text-xl font-semibold text-deep-blue mb-3">Quick Actions</h2>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
-          {quickActions.map((action, index) => (
-            <Link 
-              key={index} 
-              href={action.href}
-              className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow"
-            >
-              <div className="flex flex-col items-center text-center">
-                {action.icon}
-                <h3 className="mt-4 font-semibold text-deep-blue">{action.title}</h3>
-                <p className="mt-2 text-sm text-gray-600">{action.description}</p>
-              </div>
-            </Link>
-          ))}
-        </div>
-      </div>
+      {/* Quick Actions - Always show these */}
+      {renderQuickActions()}
       
       {/* Recent Analyses */}
       <div>
@@ -187,7 +197,30 @@ export default function Dashboard() {
           </Link>
         </div>
         
-        {stats.recentAnalyses.length > 0 ? (
+        {loading ? (
+          // Show skeleton loader for analyses
+          <div className="bg-white rounded-lg shadow-md p-4">
+            <div className="animate-pulse space-y-4">
+              {Array(3).fill(0).map((_, i) => (
+                <div key={i} className="flex items-center space-x-4">
+                  <div className="h-4 bg-gray-200 rounded w-1/4"></div>
+                  <div className="h-4 bg-gray-200 rounded w-1/4"></div>
+                  <div className="h-4 bg-gray-200 rounded w-1/6"></div>
+                </div>
+              ))}
+            </div>
+          </div>
+        ) : error ? (
+          <div className="bg-white rounded-lg shadow-md p-8 text-center">
+            <p className="text-gray-500">Failed to load analyses. Please try again.</p>
+            <button 
+              onClick={fetchDashboardData}
+              className="mt-4 inline-block px-4 py-2 bg-accent-orange text-white rounded-md hover:bg-accent-orange/90 transition-colors"
+            >
+              Retry
+            </button>
+          </div>
+        ) : stats.recentAnalyses.length > 0 ? (
           <div className="bg-white rounded-lg shadow-md overflow-hidden">
             <table className="min-w-full divide-y divide-gray-200">
               <thead className="bg-gray-50">

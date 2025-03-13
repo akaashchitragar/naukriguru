@@ -35,7 +35,7 @@ interface Analysis {
 
 export class ApiClient {
   private baseUrl: string;
-  private defaultTimeout: number = 30000; // 30 seconds default timeout
+  private defaultTimeout: number = 10000; // Reduce timeout from 30s to 10s for faster feedback
 
   constructor() {
     this.baseUrl = process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000';
