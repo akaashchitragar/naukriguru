@@ -99,16 +99,19 @@ Naukri Guru is revolutionizing the Indian job search experience by providing sma
 ## 🛠️ Tech Stack
 
 ### Frontend
-- **Next.js 14**
+- **Next.js 15.2.2**
 - **Tailwind CSS** + **Shadcn/ui**
 - **React Query** & **Zustand**
 - **TypeScript**
+- **Firebase Authentication**
+- **Firebase Firestore**
+- **Firebase Storage**
 
 ### Backend
 - **FastAPI**
 - **Google Gemini AI**
 - **PyMuPDF** for PDF processing
-- **MongoDB** for data storage
+- **Firebase Admin SDK**
 
 ### Payment Processing
 - **Razorpay**
@@ -121,25 +124,26 @@ Naukri Guru is revolutionizing the Indian job search experience by providing sma
   - Test mode for development
 
 ### Infrastructure
-- **AWS Amplify**
-  - Amplify Hosting (Frontend & Backend hosting)
-  - Amplify Storage (S3 for file storage)
-  - Amplify API (GraphQL/REST APIs)
-  - Amplify CLI (Infrastructure management)
-  - Built-in CI/CD pipeline
-  - Automatic SSL/TLS certificates
+- **Vercel** (Frontend hosting)
+- **Railway** (Backend hosting)
+- **Firebase**
+  - Firestore Database
+  - Firebase Authentication
+  - Firebase Storage (for file storage)
+  - Firebase Functions (serverless functions)
+  - Real-time data synchronization
+  - Built-in security rules
 
 ### Authentication & Security
-- **Clerk**
-  - Modern authentication and user management
+- **Firebase Authentication**
+  - Email/password authentication
   - Social login providers (Google, GitHub, etc.)
-  - Multi-session management
-  - User profiles and organization management
-  - JWT management and session security
-  - Built-in React components
-  - Webhook integrations
-- **AWS WAF** for security
-- **AWS KMS** for key management
+  - Multi-factor authentication
+  - Secure token management
+  - User management dashboard
+  - Custom claims and user roles
+- **Firebase Security Rules** for data protection
+- **API key management** for secure backend communication
 
 ## 🎨 Color Theme
 
@@ -178,13 +182,10 @@ Our color theme is designed to reflect trust, professionalism, and Indian cultur
 
 - Node.js 18.x or higher
 - Python 3.9 or higher
-- MongoDB Atlas account
-- AWS account
+- Firebase account
 - Google Cloud account (for Gemini AI)
-- Clerk account
-- pnpm package manager
-- AWS Amplify CLI
-- Razorpay account
+- npm package manager
+- Razorpay account (for payment integration)
 - Valid business PAN/GST for Razorpay integration
 
 ## 🚀 Installation
@@ -195,32 +196,20 @@ git clone https://github.com/chitragarakash/naukriguru.git
 cd naukriguru
 ```
 
-2. Install and configure AWS Amplify CLI:
+2. Set up Firebase:
 ```bash
-npm install -g @aws-amplify/cli
-amplify configure
+npm install -g firebase-tools
+firebase login
+firebase init
 ```
 
-3. Initialize Amplify in your project:
-```bash
-amplify init
-```
-
-4. Add necessary Amplify services:
-```bash
-amplify add storage
-amplify add api
-amplify push
-```
-
-5. Install frontend dependencies:
+3. Install frontend dependencies:
 ```bash
 cd frontend
 pnpm install
-pnpm add @clerk/nextjs
 ```
 
-6. Install backend dependencies:
+4. Install backend dependencies:
 ```bash
 cd backend
 python -m venv venv
@@ -228,26 +217,24 @@ source venv/bin/activate  # On Windows: .\venv\Scripts\activate
 pip install -r requirements.txt
 ```
 
-7. Set up environment variables:
+5. Set up environment variables:
 
 Create `.env.local` in the frontend directory:
 ```env
 NEXT_PUBLIC_API_URL=http://localhost:8000
-NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=your_clerk_publishable_key
-CLERK_SECRET_KEY=your_clerk_secret_key
-NEXT_PUBLIC_CLERK_SIGN_IN_URL=/sign-in
-NEXT_PUBLIC_CLERK_SIGN_UP_URL=/sign-up
-NEXT_PUBLIC_CLERK_AFTER_SIGN_IN_URL=/
-NEXT_PUBLIC_CLERK_AFTER_SIGN_UP_URL=/
+NEXT_PUBLIC_FIREBASE_API_KEY=your_firebase_api_key
+NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN=your_firebase_auth_domain
+NEXT_PUBLIC_FIREBASE_PROJECT_ID=your_firebase_project_id
+NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET=your_firebase_storage_bucket
+NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID=your_firebase_messaging_sender_id
+NEXT_PUBLIC_FIREBASE_APP_ID=your_firebase_app_id
 NEXT_PUBLIC_RAZORPAY_KEY_ID=your_razorpay_key_id
 ```
 
 Create `.env` in the backend directory:
 ```env
 GOOGLE_API_KEY=your_gemini_api_key
-MONGODB_URI=your_mongodb_uri
-AWS_REGION=your_aws_region
-CLERK_SECRET_KEY=your_clerk_secret_key
+FIREBASE_SERVICE_ACCOUNT_KEY_PATH=path/to/serviceAccountKey.json
 RAZORPAY_KEY_ID=your_razorpay_key_id
 RAZORPAY_KEY_SECRET=your_razorpay_key_secret
 RAZORPAY_WEBHOOK_SECRET=your_webhook_secret
@@ -274,40 +261,42 @@ pnpm dev
 ```
 ├── frontend/
 │   ├── app/                # Next.js app router
-│   │   ├── sign-in/       # Clerk sign in page
-│   │   ├── sign-up/       # Clerk sign up page
-│   │   └── layout.tsx     # Root layout with ClerkProvider
+│   │   ├── auth/          # Authentication pages
+│   │   └── layout.tsx     # Root layout with Firebase providers
 │   ├── components/         # React components
 │   ├── lib/               # Utility functions
-│   ├── styles/            # Global styles
-│   └── middleware.ts      # Clerk authentication middleware
+│   │   ├── firebase.ts    # Firebase configuration
+│   │   └── api.ts         # API client
+│   └── styles/            # Global styles
 ├── backend/
 │   ├── app/              # Main application
 │   ├── services/         # Business logic
 │   └── models/           # Data models
-├── amplify/              # Amplify backend configuration
 └── docs/                 # Documentation
 ```
 
 ## 🚀 Deployment
 
-1. Deploy the backend:
+1. Deploy the backend to Railway:
 ```bash
-amplify push
+# Follow Railway CLI instructions
 ```
 
-2. Deploy the frontend:
+2. Deploy the frontend to Vercel:
 ```bash
-amplify publish
+vercel
 ```
 
-The application will be automatically deployed to AWS Amplify Hosting with a secure domain and SSL certificate.
+3. Deploy Firebase configuration:
+```bash
+firebase deploy
+```
 
 ## 🔒 Security
 
-- Authentication handled by Clerk's secure infrastructure
-- JWT validation and session management by Clerk
-- All API keys and secrets stored securely using AWS Secrets Manager
+- Authentication handled by Firebase Authentication
+- Firestore security rules for data protection
+- All API keys and secrets stored securely
 - CORS properly configured for production
 - Input validation and sanitization implemented
 - Regular security audits and updates
@@ -354,8 +343,7 @@ For more information, please refer to the [LICENSE](LICENSE) file in the reposit
 ## 🙏 Acknowledgments
 
 - Google Gemini AI for powering the resume analysis
-- AWS for infrastructure support
-- MongoDB Atlas for database services
+- Firebase for backend infrastructure
 - All contributors and supporters of the project
 
 ## 📞 Support
@@ -481,4 +469,52 @@ POST /api/payments/verify
 POST /api/webhooks/razorpay
 GET  /api/subscriptions/status
 POST /api/subscriptions/cancel
-``` 
+```
+
+## 🚀 Firebase Integration
+
+The application uses Firebase for:
+
+1. **Authentication**: User sign-up, sign-in, and Google authentication
+2. **Firestore Database**: Storing user data, resumes, and analysis results
+3. **Storage**: Storing uploaded resume files
+
+### Database Structure
+
+- **users**: User account information
+- **resumes**: Uploaded resume files with metadata
+- **analyses**: Analysis results linked to users and resumes
+
+## 📝 API Endpoints
+
+- `GET /`: Welcome message
+- `POST /analyze`: Analyze a resume against a job description (authenticated)
+- `GET /users/me/analyses`: Get a user's analysis history (authenticated)
+- `GET /users/me/resumes`: Get a user's uploaded resumes (authenticated)
+- `POST /analyze-dev`: Development endpoint for testing (no authentication)
+
+## 📄 Project Structure
+
+```
+naukri-guru/
+├── frontend/               # Next.js frontend
+│   ├── app/                # App router
+│   ├── components/         # React components
+│   ├── lib/                # Utility functions and API client
+│   └── public/             # Static assets
+│
+├── backend/                # FastAPI backend
+│   ├── services/           # Service modules
+│   │   ├── pdf_parser.py   # PDF text extraction
+│   │   ├── resume_analyzer.py # Resume analysis with Gemini
+│   │   ├── firebase_admin.py # Firebase integration
+│   │   ├── database.py     # Database operations
+│   │   └── auth.py         # Authentication service
+│   └── main.py             # FastAPI application
+│
+└── SETUP.md                # Setup instructions
+```
+
+## 🚀 Setup
+
+See [SETUP.md](./SETUP.md) for detailed setup instructions. 
