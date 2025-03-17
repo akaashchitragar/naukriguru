@@ -2,6 +2,7 @@
 
 import React from 'react';
 import Link from 'next/link';
+import { motion } from 'framer-motion';
 
 const Footer = () => {
   // Get the current year for the copyright notice
@@ -99,56 +100,93 @@ const Footer = () => {
   ];
 
   return (
-    <footer className="bg-deep-blue text-white py-8">
-      <div className="container mx-auto px-4">
-        <div className="flex flex-col md:flex-row">
+    <footer className="relative overflow-hidden bg-gradient-to-br from-primary-blue to-[#0a2d5e] text-pure-white">
+      {/* Background decorative elements */}
+      <div className="absolute inset-0 overflow-hidden opacity-10">
+        <div className="absolute -top-24 -left-24 h-96 w-96 rounded-full bg-primary-yellow blur-3xl"></div>
+        <div className="absolute bottom-0 right-1/4 h-64 w-64 rounded-full bg-light-blue blur-3xl"></div>
+      </div>
+      
+      {/* Newsletter Section */}
+      <div className="relative border-b border-white/10">
+        <div className="container mx-auto px-4 py-12">
+          <div className="flex flex-col items-center justify-between gap-8 md:flex-row">
+            <div className="max-w-md">
+              <h3 className="mb-2 text-2xl font-bold text-primary-yellow">Stay Updated</h3>
+              <p className="text-gray-300">Get the latest career tips and job market insights delivered to your inbox.</p>
+            </div>
+            <div className="w-full max-w-md">
+              <div className="flex">
+                <input 
+                  type="email" 
+                  placeholder="Enter your email" 
+                  className="w-full rounded-l-lg border-0 bg-white/10 px-4 py-3 text-white placeholder-gray-400 backdrop-blur-sm focus:outline-none focus:ring-2 focus:ring-primary-yellow"
+                />
+                <button className="rounded-r-lg bg-primary-yellow px-6 py-3 font-medium text-primary-blue transition-all hover:bg-dark-yellow">
+                  Subscribe
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      {/* Main Footer Content */}
+      <div className="container relative mx-auto px-4 py-12">
+        <div className="grid grid-cols-1 gap-12 md:grid-cols-6 lg:grid-cols-12">
           {/* Logo and description */}
-          <div className="mb-8 md:mb-0 md:w-1/3 pr-8">
+          <div className="md:col-span-2 lg:col-span-4">
             <Link href="/" className="flex items-center space-x-2">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                viewBox="0 0 24 24"
-                fill="currentColor"
-                className="h-7 w-7 text-accent-orange"
-              >
-                <path d="M11.7 2.805a.75.75 0 01.6 0A60.65 60.65 0 0122.83 8.72a.75.75 0 01-.231 1.337 49.949 49.949 0 00-9.902 3.912l-.003.002-.34.18a.75.75 0 01-.707 0A50.009 50.009 0 007.5 12.174v-.224c0-.131.067-.248.172-.311a54.614 54.614 0 014.653-2.52.75.75 0 00-.65-1.352 56.129 56.129 0 00-4.78 2.589 1.858 1.858 0 00-.859 1.228 49.803 49.803 0 00-4.634-1.527.75.75 0 01-.231-1.337A60.653 60.653 0 0111.7 2.805z" />
-                <path d="M13.06 15.473a48.45 48.45 0 017.666-3.282c.134 1.414.22 2.843.255 4.285a.75.75 0 01-.46.71 47.878 47.878 0 00-8.105 4.342.75.75 0 01-.832 0 47.877 47.877 0 00-8.104-4.342.75.75 0 01-.461-.71c.035-1.442.121-2.87.255-4.286A48.4 48.4 0 016 13.18v1.27a1.5 1.5 0 00-.14 2.508c-.09.38-.222.753-.397 1.11.452.213.901.434 1.346.661a6.729 6.729 0 00.551-1.608 1.5 1.5 0 00.14-2.67v-.645a48.549 48.549 0 013.44 1.668 2.25 2.25 0 002.12 0z" />
-                <path d="M4.462 19.462c.42-.419.753-.89 1-1.394.453.213.902.434 1.347.661a6.743 6.743 0 01-1.286 1.794.75.75 0 11-1.06-1.06z" />
-              </svg>
-              <span className="text-xl font-bold">JobCraft.in</span>
+              <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary-yellow/20 backdrop-blur-sm">
+                <svg
+                  xmlns="http://www.w3.org/2000/svg"
+                  viewBox="0 0 24 24"
+                  fill="currentColor"
+                  className="h-6 w-6 text-primary-yellow"
+                >
+                  <path d="M11.7 2.805a.75.75 0 01.6 0A60.65 60.65 0 0122.83 8.72a.75.75 0 01-.231 1.337 49.949 49.949 0 00-9.902 3.912l-.003.002-.34.18a.75.75 0 01-.707 0A50.009 50.009 0 007.5 12.174v-.224c0-.131.067-.248.172-.311a54.614 54.614 0 014.653-2.52.75.75 0 00-.65-1.352 56.129 56.129 0 00-4.78 2.589 1.858 1.858 0 00-.859 1.228 49.803 49.803 0 00-4.634-1.527.75.75 0 01-.231-1.337A60.653 60.653 0 0111.7 2.805z" />
+                  <path d="M13.06 15.473a48.45 48.45 0 017.666-3.282c.134 1.414.22 2.843.255 4.285a.75.75 0 01-.46.71 47.878 47.878 0 00-8.105 4.342.75.75 0 01-.832 0 47.877 47.877 0 00-8.104-4.342.75.75 0 01-.461-.71c.035-1.442.121-2.87.255-4.286A48.4 48.4 0 016 13.18v1.27a1.5 1.5 0 00-.14 2.508c-.09.38-.222.753-.397 1.11.452.213.901.434 1.346.661a6.729 6.729 0 00.551-1.608 1.5 1.5 0 00.14-2.67v-.645a48.549 48.549 0 013.44 1.668 2.25 2.25 0 002.12 0z" />
+                  <path d="M4.462 19.462c.42-.419.753-.89 1-1.394.453.213.902.434 1.347.661a6.743 6.743 0 01-1.286 1.794.75.75 0 11-1.06-1.06z" />
+                </svg>
+              </div>
+              <span className="text-xl font-bold">JobCraft<span className="text-primary-yellow">.in</span></span>
             </Link>
-            <p className="mt-3 text-sm text-gray-400 leading-relaxed">
+            <p className="mt-4 text-sm leading-relaxed text-gray-300">
               Your AI-Powered Career Companion for the Indian Job
               Market. Revolutionizing the Indian job search experience
               with smart, localized resume optimization.
             </p>
-            <div className="mt-4 flex space-x-4">
+            
+            {/* Social Links */}
+            <div className="mt-6 flex space-x-4">
               {socialLinks.map((item) => (
-                <a
+                <motion.a
                   key={item.name}
                   href={item.href}
-                  className="text-gray-400 hover:text-white transition-colors"
+                  className="flex h-10 w-10 items-center justify-center rounded-full bg-white/10 text-gray-300 backdrop-blur-sm transition-colors hover:bg-primary-yellow hover:text-primary-blue"
                   target="_blank"
                   rel="noopener noreferrer"
+                  whileHover={{ scale: 1.1 }}
+                  whileTap={{ scale: 0.95 }}
                 >
                   <span className="sr-only">{item.name}</span>
                   {item.icon}
-                </a>
+                </motion.a>
               ))}
             </div>
           </div>
 
           {/* Links */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-8 md:gap-4 md:w-2/3">
+          <div className="grid grid-cols-2 gap-8 md:col-span-4 md:grid-cols-2 lg:col-span-8 lg:grid-cols-4">
             {footerLinks.map((group) => (
               <div key={group.title}>
-                <h3 className="text-base font-semibold mb-3">{group.title}</h3>
-                <ul className="space-y-2">
+                <h3 className="mb-4 text-base font-semibold text-primary-yellow">{group.title}</h3>
+                <ul className="space-y-3">
                   {group.links.map((link) => (
                     <li key={link.name}>
                       <Link
                         href={link.href}
-                        className="text-sm text-gray-400 hover:text-white transition-colors"
+                        className="text-sm text-gray-300 transition-colors hover:text-primary-yellow"
                       >
                         {link.name}
                       </Link>
@@ -160,23 +198,11 @@ const Footer = () => {
           </div>
         </div>
 
-        <div className="mt-8 pt-6 border-t border-gray-800">
-          <div className="flex flex-col md:flex-row justify-between items-center">
-            <p className="text-xs text-gray-400 mb-4 md:mb-0">
-              &copy; {copyrightYears} JobCraft.in. All rights reserved.
-            </p>
-            <div className="flex space-x-6">
-              <Link href="/privacy" className="text-xs text-gray-400 hover:text-white">
-                Privacy Policy
-              </Link>
-              <Link href="/terms" className="text-xs text-gray-400 hover:text-white">
-                Terms of Service
-              </Link>
-              <Link href="/cookies" className="text-xs text-gray-400 hover:text-white">
-                Cookie Policy
-              </Link>
-            </div>
-          </div>
+        {/* Bottom Bar */}
+        <div className="mt-12 flex flex-col items-center justify-between space-y-4 border-t border-white/10 pt-8 text-center md:flex-row md:text-left">
+          <p className="text-xs text-gray-400">
+            &copy; {copyrightYears} JobCraft.in. All rights reserved.
+          </p>
         </div>
       </div>
     </footer>

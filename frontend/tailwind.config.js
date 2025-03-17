@@ -16,14 +16,28 @@ module.exports = {
     },
     extend: {
       colors: {
-        // Primary colors from README
-        "deep-blue": "#12232E",
-        "accent-orange": "#FF6B6B",
-        "soft-purple": "#7D94B5",
+        // Primary blue colors
+        "primary-blue": "#0A2463", // Deep blue - primary color
+        "secondary-blue": "#1E5F8C", // Medium blue - secondary color
+        "light-blue": "#3D9BE9", // Light blue - accent color
         
-        // Supporting colors from README
+        // Primary yellow colors
+        "primary-yellow": "#FFCB05", // Bright yellow - primary accent
+        "secondary-yellow": "#FFE566", // Light yellow - secondary accent
+        "dark-yellow": "#E6B800", // Darker yellow - for hover states
+        
+        // Supporting colors
         "pure-white": "#FFFFFF",
-        "light-gray": "#F5F7FA",
+        "off-white": "#F8F9FA",
+        "light-gray": "#E9ECEF",
+        "medium-gray": "#6C757D",
+        "dark-gray": "#343A40",
+        "pure-black": "#000000",
+        
+        // Legacy colors (keeping for backward compatibility)
+        "deep-blue": "#0A2463", // Updated to match new primary-blue
+        "accent-orange": "#FFCB05", // Updated to match new primary-yellow
+        "soft-purple": "#3D9BE9", // Updated to match new light-blue
         
         border: "hsl(var(--border))",
         input: "hsl(var(--input))",

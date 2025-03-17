@@ -63,10 +63,10 @@ const LoginModal: React.FC<LoginModalProps> = ({ isOpen, onClose }) => {
             transition={{ type: 'spring', damping: 25, stiffness: 300 }}
             className="relative w-full max-w-md"
           >
-            <div className="relative overflow-hidden rounded-xl bg-white shadow-2xl">
+            <div className="relative overflow-hidden rounded-xl bg-pure-white shadow-primary">
               <button
                 onClick={onClose}
-                className="absolute right-4 top-4 rounded-full p-1 text-gray-400 hover:bg-gray-100 hover:text-gray-600"
+                className="absolute right-4 top-4 rounded-full p-1 text-medium-gray hover:bg-light-gray hover:text-dark-gray"
                 aria-label="Close"
               >
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
