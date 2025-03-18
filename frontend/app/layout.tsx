@@ -3,6 +3,8 @@ import type { Metadata } from 'next';
 import { Inter } from 'next/font/google';
 import { AuthProvider } from '@/lib/auth';
 import { ToastProvider } from '@/components/Toast';
+import { ErrorBoundary } from '@/components/ErrorBoundary';
+import { PreloaderProvider } from '@/lib/preloader';
 
 const inter = Inter({ subsets: ['latin'] });
 
@@ -19,13 +21,17 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body className={inter.className}>
-        <AuthProvider>
-          <ToastProvider>
-            <main className="min-h-screen bg-off-white">
-              {children}
-            </main>
-          </ToastProvider>
-        </AuthProvider>
+        <ErrorBoundary fallback={<div className="p-8 text-center">Something went wrong. Please refresh the page.</div>}>
+          <AuthProvider>
+            <ToastProvider>
+              <PreloaderProvider>
+                <main className="min-h-screen bg-off-white">
+                  {children}
+                </main>
+              </PreloaderProvider>
+            </ToastProvider>
+          </AuthProvider>
+        </ErrorBoundary>
       </body>
     </html>
   );

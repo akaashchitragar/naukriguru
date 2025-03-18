@@ -71,7 +71,7 @@ Naukri Guru is revolutionizing the Indian job search experience by providing sma
   - Intuitive dashboard layout
   - Real-time analysis updates
   - Interactive scoring components
-  - Easy document upload/paste
+  - Easy document upload
 
 - **User Experience**
   - Modern, responsive interface

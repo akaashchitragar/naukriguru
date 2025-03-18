@@ -1,8 +1,8 @@
-import { initializeApp, getApps, getApp } from 'firebase/app';
-import { getFirestore } from 'firebase/firestore';
-import { getStorage } from 'firebase/storage';
-import { getAuth } from 'firebase/auth';
-import { getAnalytics, isSupported } from 'firebase/analytics';
+import { initializeApp, getApps, getApp, FirebaseApp } from 'firebase/app';
+import { getFirestore, Firestore } from 'firebase/firestore';
+import { getStorage, FirebaseStorage } from 'firebase/storage';
+import { getAuth, Auth } from 'firebase/auth';
+import { getAnalytics, isSupported, Analytics } from 'firebase/analytics';
 
 // Your web app's Firebase configuration
 const firebaseConfig = {
@@ -15,21 +15,67 @@ const firebaseConfig = {
   measurementId: process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID
 };
 
-// Initialize Firebase
-const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
-const db = getFirestore(app);
-const storage = getStorage(app);
-const auth = getAuth(app);
+// Check if we're in a browser environment
+const isBrowser = typeof window !== 'undefined';
 
-// Initialize Analytics conditionally (only in browser)
-let analytics = null;
-if (typeof window !== 'undefined') {
-  // Initialize analytics only on the client side
-  isSupported().then(supported => {
-    if (supported) {
-      analytics = getAnalytics(app);
+// Initialize Firebase only on the client side
+let app: FirebaseApp | null = null;
+let db: Firestore | null = null;
+let storage: FirebaseStorage | null = null;
+let auth: Auth | null = null;
+let analytics: Analytics | null = null;
+
+// Only initialize Firebase on the client side
+if (isBrowser) {
+  try {
+    // Validate that we have the required config
+    if (!firebaseConfig.apiKey || !firebaseConfig.projectId) {
+      console.error("Firebase configuration is incomplete. Check your environment variables.");
+    } else {
+      // Initialize Firebase
+      app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
+      
+      // Initialize services with error handling
+      try {
+        db = getFirestore(app);
+      } catch (error) {
+        console.error("Firestore initialization error:", error);
+      }
+      
+      try {
+        storage = getStorage(app);
+      } catch (error) {
+        console.error("Storage initialization error:", error);
+      }
+      
+      try {
+        auth = getAuth(app);
+      } catch (error) {
+        console.error("Auth initialization error:", error);
+      }
+      
+      // Initialize Analytics conditionally
+      try {
+        isSupported().then(supported => {
+          if (supported) {
+            analytics = getAnalytics(app as FirebaseApp);
+          }
+        }).catch(error => {
+          console.error("Analytics initialization error:", error);
+        });
+      } catch (error) {
+        console.error("Analytics setup error:", error);
+      }
     }
-  });
+  } catch (error) {
+    console.error("Firebase initialization error:", error);
+  }
+} else {
+  // Server-side placeholder values
+  app = null;
+  db = null;
+  storage = null;
+  auth = null;
 }
 
 export { app, db, storage, auth, analytics }; 

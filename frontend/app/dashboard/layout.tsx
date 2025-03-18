@@ -4,15 +4,14 @@ import { useEffect } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import { useAuth } from '@/lib/auth';
 import Header from '@/components/Header';
-import Sidebar from '@/components/dashboard/Sidebar';
-import { ToastProvider } from '@/components/Toast';
+import LoadingSpinner from '@/components/ui/LoadingSpinner';
 
 export default function DashboardLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
-  const { user, loading, logout } = useAuth();
+  const { user, loading, isInitialized } = useAuth();
   const router = useRouter();
   const pathname = usePathname();
 
@@ -24,25 +23,27 @@ export default function DashboardLayout({
     return 'analyze';
   };
 
+  // Redirect to home if not authenticated
   useEffect(() => {
-    if (!loading && !user) {
+    if (isInitialized && !user) {
       router.push('/');
     }
-  }, [user, loading, router]);
+  }, [user, isInitialized, router]);
 
-  if (loading) {
+  // Show loading state while auth is initializing
+  if (!isInitialized || loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <div className="inline-block animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-accent-orange"></div>
-          <p className="mt-4 text-gray-600">Loading...</p>
-        </div>
-      </div>
+      <LoadingSpinner 
+        size="large" 
+        message="Loading dashboard..." 
+        fullScreen={true} 
+      />
     );
   }
 
+  // If auth is initialized but no user, return null (will redirect in useEffect)
   if (!user) {
-    return null; // Will redirect in useEffect
+    return null;
   }
 
   const handleTabChange = (tab: 'analyze' | 'profile') => {
@@ -61,9 +62,8 @@ export default function DashboardLayout({
         onTabChange={handleTabChange}
       />
       
-      <div className="w-full px-4 py-6 flex">
-        <Sidebar />
-        <main className="flex-1 ml-4">
+      <div className="container mx-auto px-4 py-6">
+        <main>
           {children}
         </main>
       </div>

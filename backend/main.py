@@ -46,6 +46,11 @@ async def welcome():
     return {"message": "Welcome to Naukri Guru API"}
 
 
+@app.get("/health")
+async def health_check():
+    return {"status": "ok"}
+
+
 @app.post("/analyze")
 async def analyze_resume_endpoint(
     file: UploadFile = File(...),
@@ -110,12 +115,54 @@ async def get_my_analyses(
         raise HTTPException(status_code=500, detail=str(e))
 
 
+@app.get("/analyses")
+async def get_analyses(
+    limit: int = 10, user_info: Dict[str, Any] = Depends(get_current_user)
+):
+    """Alternative endpoint for getting analyses"""
+    try:
+        user_id = user_info["user_id"]
+        analyses = FirestoreDB.get_user_analyses(user_id, limit)
+        
+        # Enhance analyses with resume information
+        resume_ids = list(set(a["resume_id"] for a in analyses if "resume_id" in a))
+        resumes = {}
+        
+        # Get resume details for all related resume_ids
+        if resume_ids:
+            for resume_id in resume_ids:
+                resume = FirestoreDB.get_resume_by_id(user_id, resume_id)
+                if resume:
+                    resumes[resume_id] = resume
+        
+        # Add resume names to analyses
+        for analysis in analyses:
+            if "resume_id" in analysis and analysis["resume_id"] in resumes:
+                resume = resumes[analysis["resume_id"]]
+                analysis["resume_name"] = resume.get("file_name", "Untitled Resume")
+        
+        return analyses  # Return just the list instead of a dict
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
 @app.get("/users/me/resumes")
 async def get_my_resumes(user_info: Dict[str, Any] = Depends(get_current_user)):
     try:
         user_id = user_info["user_id"]
         resumes = FirestoreDB.get_user_resumes(user_id)
         return {"resumes": resumes}
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@app.get("/resumes")
+async def get_resumes(user_info: Dict[str, Any] = Depends(get_current_user)):
+    """Alternative endpoint for getting resumes"""
+    try:
+        user_id = user_info["user_id"]
+        resumes = FirestoreDB.get_user_resumes(user_id)
+        return resumes  # Return just the list instead of a dict
     except Exception as e:
         raise HTTPException(status_code=500, detail=str(e))
 

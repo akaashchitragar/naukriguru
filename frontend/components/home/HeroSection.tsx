@@ -1,6 +1,6 @@
 'use client';
 
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { motion } from 'framer-motion';
@@ -10,8 +10,16 @@ interface HeroSectionProps {
 }
 
 const HeroSection: React.FC<HeroSectionProps> = ({ onLoginClick }) => {
+  // Add state to control when animations should start
+  const [isClient, setIsClient] = useState(false);
+  
+  // Only enable animations after component mounts on client
+  useEffect(() => {
+    setIsClient(true);
+  }, []);
+  
   return (
-    <div className="relative overflow-hidden bg-gradient-primary py-24 md:py-36">
+    <div className="relative overflow-hidden bg-gradient-primary py-24 md:py-36" suppressHydrationWarning>
       {/* Background decorative elements */}
       <div className="absolute inset-0 overflow-hidden opacity-20">
         <div className="absolute -top-24 -left-24 h-96 w-96 rounded-full bg-primary-yellow blur-3xl"></div>
@@ -132,7 +140,7 @@ const HeroSection: React.FC<HeroSectionProps> = ({ onLoginClick }) => {
                 viewBox="0 0 400 400"
                 className="h-full w-full"
                 initial="hidden"
-                animate="visible"
+                animate={isClient ? "visible" : "hidden"}
               >
                 {/* Enhanced background with gradient */}
                 <defs>
@@ -167,7 +175,7 @@ const HeroSection: React.FC<HeroSectionProps> = ({ onLoginClick }) => {
                   r="180"
                   fill="url(#bgGradient)"
                   initial={{ scale: 0 }}
-                  animate={{ scale: 1 }}
+                  animate={isClient ? { scale: 1 } : { scale: 0 }}
                   transition={{ duration: 1, ease: "easeOut" }}
                 />
                 
@@ -178,7 +186,7 @@ const HeroSection: React.FC<HeroSectionProps> = ({ onLoginClick }) => {
                   r="170"
                   fill="url(#gridPattern)"
                   initial={{ opacity: 0 }}
-                  animate={{ opacity: 0.4 }}
+                  animate={isClient ? { opacity: 0.4 } : { opacity: 0 }}
                   transition={{ delay: 0.5, duration: 1 }}
                 />
 
@@ -191,10 +199,10 @@ const HeroSection: React.FC<HeroSectionProps> = ({ onLoginClick }) => {
                   stroke="rgba(252, 211, 77, 0.2)"
                   strokeWidth="2"
                   initial={{ scale: 0.8, opacity: 0 }}
-                  animate={{ 
+                  animate={isClient ? { 
                     scale: [0.8, 1.1, 0.8],
                     opacity: [0, 0.5, 0]
-                  }}
+                  } : { scale: 0.8, opacity: 0 }}
                   transition={{
                     duration: 4,
                     repeat: Infinity,
@@ -641,7 +649,7 @@ const HeroSection: React.FC<HeroSectionProps> = ({ onLoginClick }) => {
                       rx="3"
                       fill="#F1F5F9"
                       initial={{ width: 0 }}
-                      animate={{ width: 50 - i * 15 }}
+                      animate={{ width: i === 0 ? 50 : 35 }}
                       transition={{ delay: 2.7 + i * 0.1, duration: 0.3 }}
                     />
                   ))}
@@ -693,8 +701,11 @@ const HeroSection: React.FC<HeroSectionProps> = ({ onLoginClick }) => {
                   
                   {/* Chart Points */}
                   {[0, 1, 2, 3, 4, 5].map((i) => {
+                    // Use a lookup table with fixed values instead of calculations
                     const x = 325 + i * 10;
-                    const y = 250 - i * (i === 4 || i === 5 ? 15 : 5) - (i * 2);
+                    // Define fixed y positions to avoid inconsistent calculations
+                    const yPositions = [250, 243, 233, 221, 210, 205];
+                    const y = yPositions[i];
                     return (
                       <motion.circle
                         key={`chart-point-${i}`}
@@ -979,8 +990,9 @@ const HeroSection: React.FC<HeroSectionProps> = ({ onLoginClick }) => {
                   
                   {/* Pulsing dots around the circle */}
                   {[0, 60, 120, 180, 240, 300].map((angle, i) => {
-                    const x = 50 + Math.cos(angle * Math.PI / 180) * 40;
-                    const y = 50 + Math.sin(angle * Math.PI / 180) * 40;
+                    // Use toFixed to ensure consistent string representation between server and client
+                    const x = (50 + Math.cos(angle * Math.PI / 180) * 40).toFixed(2);
+                    const y = (50 + Math.sin(angle * Math.PI / 180) * 40).toFixed(2);
                     return (
                       <motion.circle
                         key={`ai-dot-${i}`}
@@ -989,11 +1001,11 @@ const HeroSection: React.FC<HeroSectionProps> = ({ onLoginClick }) => {
                         r="3"
                         fill="#FCD34D"
                         filter="url(#glow)"
-                        initial={{ opacity: 0, scale: 0 }}
-                        animate={{ 
+                        initial={{ opacity: 0 }}
+                        animate={isClient ? { 
                           opacity: [0, 1, 0],
                           scale: [0, 1, 0]
-                        }}
+                        } : { opacity: 0, scale: 0 }}
                         transition={{
                           duration: 2,
                           delay: 3.5 + i * 0.2,

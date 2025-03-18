@@ -1,7 +1,13 @@
 {
   "dependencies": {
+    "@headlessui/react": "^2.2.0",
+    "@types/lodash": "^4.17.16",
+    "date-fns": "^4.1.0",
     "embla-carousel-autoplay": "^8.5.2",
     "embla-carousel-react": "^8.5.2",
-    "firebase": "^11.4.0"
+    "firebase": "^11.4.0",
+    "firebase-admin": "^13.2.0",
+    "framer-motion": "^12.5.0",
+    "lodash": "^4.17.21"
   }
 }

@@ -12,7 +12,7 @@ const steps = [
   {
     number: '01',
     title: 'Upload Your Resume',
-    description: 'Upload your existing resume in PDF format or paste the content directly.',
+    description: 'Upload your existing resume in PDF format.',
     gradientFrom: 'from-amber-400',
     gradientTo: 'to-orange-500',
     iconBg: 'bg-orange-500',

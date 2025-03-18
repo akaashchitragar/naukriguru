@@ -1,20 +1,28 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { motion } from 'framer-motion';
 import { useAuth } from '@/lib/auth';
+import LoadingSpinner from '@/components/ui/LoadingSpinner';
 
 export default function SignUpPage() {
   const router = useRouter();
-  const { signUp, signInWithGoogle } = useAuth();
+  const { user, isInitialized, signUp, signInWithGoogle } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [name, setName] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+
+  // Redirect if already logged in
+  useEffect(() => {
+    if (isInitialized && user) {
+      router.push('/dashboard');
+    }
+  }, [user, isInitialized, router]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -51,6 +59,11 @@ export default function SignUpPage() {
       setLoading(false);
     }
   };
+
+  // If user is already logged in, show loading while redirecting
+  if (user) {
+    return <LoadingSpinner size="large" message="Redirecting to dashboard..." fullScreen={true} />;
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-b from-white via-blue-50/30 to-white flex flex-col justify-center py-12 sm:px-6 lg:px-8">

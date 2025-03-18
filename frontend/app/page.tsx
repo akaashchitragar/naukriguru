@@ -17,16 +17,17 @@ import Footer from '@/components/home/Footer';
 import LoginModal from '@/components/LoginModal';
 
 export default function Home() {
-  const { user, loading } = useAuth();
+  const { user } = useAuth();
   const router = useRouter();
   const [activeTab, setActiveTab] = useState<'analyze' | 'profile'>('analyze');
   const [isLoginModalOpen, setIsLoginModalOpen] = useState(false);
 
+  // Only redirect if user is already logged in
   useEffect(() => {
-    if (!loading && user) {
+    if (user) {
       router.push('/dashboard');
     }
-  }, [user, loading, router]);
+  }, [user, router]);
 
   const handleOpenLoginModal = () => {
     setIsLoginModalOpen(true);
@@ -36,18 +37,7 @@ export default function Home() {
     setIsLoginModalOpen(false);
   };
 
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <div className="inline-block animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-accent-orange"></div>
-          <p className="mt-4 text-gray-600">Loading...</p>
-        </div>
-      </div>
-    );
-  }
-
-  // If user is logged in, they will be redirected in the useEffect
+  // If user is logged in, show a minimal loading state while redirecting
   if (user) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -59,7 +49,7 @@ export default function Home() {
     );
   }
 
-  // If user is not logged in, show the marketing homepage
+  // Always show the marketing homepage if not logged in
   return (
     <div className="min-h-screen">
       <Header 

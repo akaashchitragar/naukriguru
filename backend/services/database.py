@@ -79,7 +79,7 @@ class FirestoreDB:
             analyses = []
             query = (
                 db.collection("analyses")
-                .where("user_id", "==", user_id)
+                .where(filter=firestore.FieldFilter("user_id", "==", user_id))
                 .order_by("created_at", direction=firestore.Query.DESCENDING)
                 .limit(limit)
             )
@@ -104,8 +104,8 @@ class FirestoreDB:
             resumes = []
             query = (
                 db.collection("resumes")
-                .where("user_id", "==", user_id)
-                .where("status", "==", "active")
+                .where(filter=firestore.FieldFilter("user_id", "==", user_id))
+                .where(filter=firestore.FieldFilter("status", "==", "active"))
                 .order_by("created_at", direction=firestore.Query.DESCENDING)
             )
 
@@ -119,6 +119,30 @@ class FirestoreDB:
         except Exception as e:
             print(f"Error getting user resumes: {str(e)}")
             return []
+
+    @staticmethod
+    def get_resume_by_id(user_id: str, resume_id: str) -> Optional[Dict[str, Any]]:
+        """
+        Get a specific resume by ID
+        """
+        try:
+            resume_ref = db.collection("resumes").document(resume_id)
+            resume = resume_ref.get()
+            
+            if not resume.exists:
+                return None
+            
+            resume_data = resume.to_dict()
+            
+            # Make sure the resume belongs to the user
+            if resume_data.get("user_id") != user_id:
+                return None
+            
+            resume_data["id"] = resume_id
+            return resume_data
+        except Exception as e:
+            print(f"Error getting resume by ID: {str(e)}")
+            return None
 
     @staticmethod
     def delete_resume(user_id: str, resume_id: str) -> bool:
