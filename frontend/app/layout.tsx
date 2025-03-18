@@ -11,6 +11,13 @@ const inter = Inter({ subsets: ['latin'] });
 export const metadata: Metadata = {
   title: 'JobCraft.in - AI Resume Analysis',
   description: 'AI-powered resume analysis for job seekers',
+  icons: {
+    icon: '/favicon.svg',
+    apple: '/apple-icon',
+    shortcut: '/favicon.svg',
+  },
+  manifest: '/manifest',
+  themeColor: '#0F172A',
 };
 
 export default function RootLayout({
