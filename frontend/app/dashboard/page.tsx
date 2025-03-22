@@ -7,6 +7,8 @@ import { ApiClient } from '@/lib/api';
 import { useToast, ToastType } from '@/components/Toast';
 import { ErrorFallback } from '@/components/ErrorFallback';
 import LoadingSpinner from '@/components/ui/LoadingSpinner';
+import { PreloaderProvider, usePreloader } from '@/lib/preloader';
+import Preloader from '@/components/Preloader';
 import { getFirestore, collection, query, where, orderBy, getDocs, Timestamp } from 'firebase/firestore';
 
 const apiClient = new ApiClient();
@@ -18,9 +20,10 @@ interface DashboardStats {
   recentAnalyses: any[];
 }
 
-export default function Dashboard() {
+function DashboardContent() {
   const { user } = useAuth();
   const { showToast } = useToast();
+  const { isLoading, setIsLoading } = usePreloader();
   const [stats, setStats] = useState<DashboardStats>({
     totalResumes: 0,
     totalAnalyses: 0,
@@ -29,26 +32,41 @@ export default function Dashboard() {
   });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(false);
+  const [dataFetched, setDataFetched] = useState(false);
 
   const fetchDashboardData = async () => {
-    if (!user) return;
+    // Prevent multiple fetch calls if already fetching or already fetched
+    if (!user || dataFetched) return;
     
     setLoading(true);
     setError(false);
     
     try {
-      // First check if API is available
-      const isApiAvailable = await apiClient.checkHealth();
-      
-      if (!isApiAvailable) {
-        showToast(ToastType.ERROR, 'API server is currently unavailable. Please try again later.');
-        setError(true);
-        setLoading(false);
-        return;
+      // First check if API is available with more retries
+      try {
+        const isApiAvailable = await apiClient.checkHealth();
+        
+        if (!isApiAvailable) {
+          console.warn('API health check failed in dashboard, continuing with fallbacks');
+          // Show a warning toast but continue with fallbacks instead of showing error
+          showToast(ToastType.WARNING, 'API server may be slow. Some features might be limited.', 7000);
+          // Continue with the function instead of returning early
+        }
+      } catch (healthError) {
+        console.error('API health check error in dashboard:', healthError);
+        // Show a warning instead of error to allow graceful degradation
+        showToast(ToastType.WARNING, 'API connectivity issues detected. Using cached data where possible.', 7000);
+        // Continue with the function to use fallbacks
       }
       
-      // Get resumes from API
-      const userResumes = await apiClient.getUserResumes();
+      // Try to get resumes, with error handling
+      let userResumes = [];
+      try {
+        userResumes = await apiClient.getUserResumes();
+      } catch (resumeError) {
+        console.error('Error fetching resumes:', resumeError);
+        // Continue with empty resumes array
+      }
       
       // Get analyses from Firestore like in the history page
       const db = getFirestore();
@@ -127,33 +145,54 @@ export default function Dashboard() {
       });
       
       setLoading(false);
+      setDataFetched(true);
+      // Signal to preloader that it can finish loading
+      setIsLoading(false);
     } catch (error) {
       console.error('Error fetching dashboard data:', error);
       showToast(ToastType.ERROR, 'Failed to load dashboard data. Please try again.');
       setError(true);
       setLoading(false);
+      setDataFetched(true);
+      // Even on error, we should stop the preloader
+      setIsLoading(false);
     }
   };
 
   useEffect(() => {
-    if (user) {
-      // Check API health first
-      apiClient.checkHealth()
-        .then(isHealthy => {
-          if (!isHealthy) {
-            showToast(ToastType.WARNING, 'API server may be unavailable. Some features might not work properly.');
-          }
+    if (user && !dataFetched) {
+      fetchDashboardData();
+      
+      // Set up a retry mechanism after 15 seconds if data fails to load
+      // This helps recover from transient network/API issues
+      const retryTimeout = setTimeout(() => {
+        if (error || (loading && !dataFetched)) {
+          console.log('Retrying dashboard data fetch after timeout');
+          setDataFetched(false); // Reset the fetched flag to allow a retry
           fetchDashboardData();
-        })
-        .catch(() => {
-          // If health check itself fails, still try to fetch data
-          fetchDashboardData();
-        });
+        }
+      }, 15000);
+      
+      return () => clearTimeout(retryTimeout);
+    } else {
+      // If no user, signal to preloader that we're done loading
+      setIsLoading(false);
     }
-  }, [user]);
+  }, [user, dataFetched, error, loading]);
 
-  // Render loading state
-  if (loading) {
+  // If the dashboard fails to load, but we have network connectivity,
+  // let's add a "Try Mock Mode" button to help users continue
+  const enableMockMode = () => {
+    // Store preference in localStorage
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('use_mock_api', 'true');
+      // Force a page reload to apply the setting
+      window.location.reload();
+    }
+  };
+
+  // Only show fallback UI if we're not in the initial loading state
+  if (loading && !isLoading) {
     return (
       <div className="flex h-full w-full flex-col items-center justify-center p-8">
         <LoadingSpinner size="large" />
@@ -167,10 +206,19 @@ export default function Dashboard() {
     return (
       <ErrorFallback
         message="Failed to load dashboard data"
+        secondaryMessage="There might be connectivity issues with our API server."
         onRetry={() => {
           setError(false);
           fetchDashboardData();
         }}
+        actions={
+          <button
+            onClick={enableMockMode}
+            className="mt-2 px-4 py-2 bg-yellow-500 text-white rounded hover:bg-yellow-600 transition-colors"
+          >
+            Try Mock Mode
+          </button>
+        }
       />
     );
   }
@@ -291,9 +339,9 @@ export default function Dashboard() {
                             : 'toDate' in analysis.created_at && typeof analysis.created_at.toDate === 'function'
                               ? analysis.created_at.toDate().toLocaleDateString()
                               : new Date().toLocaleDateString()
-                          : analysis.created_at instanceof Date 
-                            ? analysis.created_at.toLocaleDateString()
-                            : new Date().toLocaleDateString()}
+                        : analysis.created_at instanceof Date 
+                          ? analysis.created_at.toLocaleDateString()
+                          : new Date().toLocaleDateString()}
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                         {analysis.job_title || analysis.resume_name || 
@@ -308,7 +356,7 @@ export default function Dashboard() {
                             <div 
                               className={`h-full ${
                                 analysis.match_score >= 80 ? 'bg-green-500' : 
-                                analysis.match_score >= 60 ? 'bg-lime-500' :
+                                analysis.match_score >= 60 ? 'bg-yellow-500' :
                                 analysis.match_score >= 40 ? 'bg-yellow-500' :
                                 'bg-red-500'
                               }`}
@@ -346,4 +394,8 @@ export default function Dashboard() {
       </div>
     </div>
   );
+}
+
+export default function Dashboard() {
+  return <DashboardContent />;
 } 

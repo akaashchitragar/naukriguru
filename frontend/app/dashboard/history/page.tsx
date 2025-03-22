@@ -269,9 +269,12 @@ export default function HistoryPage() {
                     <td className="px-6 py-4 whitespace-nowrap text-right text-sm font-medium">
                       <button
                         onClick={() => viewAnalysisDetails(analysis.id)}
-                        className="text-primary-blue hover:text-primary-blue/80 mr-4"
+                        className="px-4 py-2 border border-primary-blue text-primary-blue hover:bg-primary-blue hover:text-white rounded-md transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary-blue flex items-center justify-center"
                       >
-                        View
+                        <span>View</span>
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 ml-1" viewBox="0 0 20 20" fill="currentColor">
+                          <path fillRule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clipRule="evenodd" />
+                        </svg>
                       </button>
                     </td>
                   </tr>

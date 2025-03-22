@@ -4,6 +4,8 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { doc, getDoc, setDoc, updateDoc } from 'firebase/firestore';
 import { db, auth } from '../lib/firebase';
 import { useAuthState } from 'react-firebase-hooks/auth';
+import { Auth } from 'firebase/auth';
+import { Firestore } from 'firebase/firestore';
 
 interface ChecklistItem {
   id: string;
@@ -13,7 +15,7 @@ interface ChecklistItem {
 }
 
 export default function ResumeChecklist() {
-  const [user] = useAuthState(auth);
+  const [user] = useAuthState(auth as Auth);
   const [activeCategory, setActiveCategory] = useState<'all' | 'format' | 'content' | 'language' | 'customization'>('all');
   const [checklist, setChecklist] = useState<ChecklistItem[]>([]);
   const [loading, setLoading] = useState(true);
@@ -60,7 +62,7 @@ export default function ResumeChecklist() {
       }
 
       try {
-        const checklistRef = doc(db, 'users', user.uid, 'resume_tools', 'checklist');
+        const checklistRef = doc(db as Firestore, 'users', user.uid, 'resume_tools', 'checklist');
         const checklistDoc = await getDoc(checklistRef);
 
         if (checklistDoc.exists()) {
@@ -101,7 +103,7 @@ export default function ResumeChecklist() {
     
     if (user) {
       try {
-        const checklistRef = doc(db, 'users', user.uid, 'resume_tools', 'checklist');
+        const checklistRef = doc(db as Firestore, 'users', user.uid, 'resume_tools', 'checklist');
         await updateDoc(checklistRef, { items: updatedChecklist });
       } catch (error) {
         console.error('Error updating checklist:', error);

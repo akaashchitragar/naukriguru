@@ -134,8 +134,26 @@ body.loaded {
   }
 }
 
+/* Fade-out animation */
+@keyframes fadeOut {
+  0% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+  }
+}
+
 .fade-in {
   animation: fadeIn 0.5s ease-in-out;
+}
+
+.fade-out {
+  animation: fadeOut 0.8s ease-in-out forwards;
+}
+
+.transition-opacity {
+  transition: opacity 0.8s ease-in-out;
 }
 
 /* Add animation classes */

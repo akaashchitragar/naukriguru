@@ -26,11 +26,6 @@ export default function Sidebar() {
       href: '/dashboard/resumes',
       icon: 'DocumentIcon',
     },
-    {
-      name: 'Settings',
-      href: '/dashboard/settings',
-      icon: 'SettingsIcon',
-    },
   ];
 
   return (

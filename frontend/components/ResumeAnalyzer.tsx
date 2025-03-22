@@ -514,6 +514,17 @@ const STORAGE_KEYS = {
   JOB_DESCRIPTION: 'resume_analyzer_job_description',
 };
 
+// Define types for stage messages
+interface StageMessage {
+  message: string;
+  progress: number;
+}
+
+interface FinalStageMessage {
+  message: string;
+  subtask: string;
+}
+
 export default function ResumeAnalyzer() {
   const { user } = useAuth();
   const { showToast } = useToast();
@@ -685,38 +696,82 @@ export default function ResumeAnalyzer() {
     // Reset the flag when starting a new analysis
     setResultSavedToFirestore(false);
     
-    // Start with a low progress value
-    setUploadProgress(10);
+    // Start with a small percentage to show immediate feedback
+    setUploadProgress(5);
     
-    // Simulate analysis stages for better UX
-    const stages = [
-      'Parsing resume...',
-      'Extracting skills...',
-      'Analyzing job description...',
-      'Matching skills...',
-      'Generating feedback...',
-      'Finalizing results...'
+    // Enhanced detailed stages for better UX with updated progress values
+    const stages: StageMessage[] = [
+      { message: 'Uploading resume...', progress: 10 },
+      { message: 'Reading document structure...', progress: 20 },
+      { message: 'Extracting skills and experience...', progress: 30 },
+      { message: 'Processing job description...', progress: 40 },
+      { message: 'Identifying key requirements...', progress: 50 },
+      { message: 'Matching skills with requirements...', progress: 60 },
+      { message: 'Evaluating experience relevance...', progress: 70 },
+      { message: 'Generating personalized feedback...', progress: 80 },
+      { message: 'Finalizing analysis...', progress: 90 },
+      { message: 'Completing analysis...', progress: 100 } // New stage to reach 100%
+    ];
+    
+    // Add more detailed final stage messages with subtasks
+    const finalStageMessages: FinalStageMessage[] = [
+      { message: 'Calculating match scores...', subtask: 'Measuring keyword relevance' },
+      { message: 'Evaluating overall compatibility...', subtask: 'Analyzing experience fit' },
+      { message: 'Creating improvement recommendations...', subtask: 'Identifying growth areas' },
+      { message: 'Generating market insights...', subtask: 'Comparing with industry standards' },
+      { message: 'Finalizing comprehensive report...', subtask: 'Assembling all components' },
+      { message: 'Completing analysis...', subtask: 'Preparing final results' }
     ];
     
     let stageIndex = 0;
+    let finalStageIndex = 0;
+    let finalStageActive = false;
+    
+    const setStage = (message: string, progress: number) => {
+      setAnalysisStage(message);
+      setUploadProgress(progress);
+    };
+    
+    // Initial progress update
+    setStage(stages[0].message, stages[0].progress);
+    
     const stageInterval = setInterval(() => {
-      setAnalysisStage(stages[stageIndex]);
-      
-      // Increment progress with each stage change
-      setUploadProgress(prev => Math.min(prev + 15, 90));
-      
-      stageIndex++;
-      if (stageIndex >= stages.length) {
-        clearInterval(stageInterval);
+      if (stageIndex < stages.length - 1) {
+        stageIndex++;
+        setStage(stages[stageIndex].message, stages[stageIndex].progress);
+        
+        // When we reach the final stage, set up for the detailed final stage
+        if (stageIndex >= stages.length - 2) { // Change to -2 to allow final 100% stage
+          finalStageActive = true;
+          setStage('Finalizing analysis...', 90);
+        }
+      } else if (finalStageActive && stageIndex < stages.length - 1) {
+        // After main stages complete, show more granular updates during the "finalizing" phase
+        if (finalStageIndex < finalStageMessages.length - 1) {
+          setStage(finalStageMessages[finalStageIndex].message, 90);
+          finalStageIndex++;
+        } else {
+          // Move to the final 100% stage
+          stageIndex++;
+          setStage(stages[stageIndex].message, stages[stageIndex].progress);
+          finalStageActive = false;
+        }
       }
-    }, 1500);
+    }, 1200); // Slightly faster progression
     
     await handleAsyncOperation(
       async () => {
         const response = await apiClient.analyzeResume(file, jobDescription);
         setResult(response.result);
-        // Set to 100% only when complete
+        
+        // Ensure we reach 100% before showing results
+        clearInterval(stageInterval);
         setUploadProgress(100);
+        setAnalysisStage('Analysis complete!');
+        
+        // Add a small delay to show the 100% state before moving to results
+        await new Promise(resolve => setTimeout(resolve, 1500));
+        
         // Move to results
         setCurrentStep(AnalyzerStep.RESULTS);
         return response;
@@ -728,6 +783,7 @@ export default function ResumeAnalyzer() {
         errorMessage: 'Failed to analyze resume',
         onSuccess: () => {
           clearInterval(stageInterval);
+          setUploadProgress(100); // Ensure 100% on success
           setError(null);
         },
         onError: (errorResponse) => {
@@ -1121,7 +1177,7 @@ export default function ResumeAnalyzer() {
                               transition={{ type: "spring", stiffness: 200, damping: 10 }}
                             >
                           <svg xmlns="http://www.w3.org/2000/svg" className="h-10 w-10 mx-auto text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
                           </svg>
                             </motion.div>
                           <p className="text-sm font-medium text-gray-900">{file.name}</p>
@@ -1261,42 +1317,224 @@ export default function ResumeAnalyzer() {
                     exit={{ opacity: 0 }}
                     transition={{ duration: 0.5 }}
                   >
+                  {/* Progress circle with percentage */}
                   <div className="relative mb-6">
-                    <svg className="w-24 h-24" viewBox="0 0 100 100">
+                    <svg className="w-28 h-28" viewBox="0 0 100 100">
                       {/* Background circle */}
                       <circle 
                         cx="50" 
                         cy="50" 
-                        r="45" 
+                        r="42" 
                         fill="none" 
-                        strokeWidth="8" 
+                        strokeWidth="12" 
                         stroke="#e5e7eb" 
                       />
-                      {/* Progress circle - strokeDasharray and strokeDashoffset control the progress */}
-                        <motion.circle 
+                      {/* Progress track with subtle animation */}
+                      <motion.circle 
                         cx="50" 
                         cy="50" 
-                        r="45" 
+                        r="42" 
                         fill="none" 
-                        strokeWidth="8" 
+                        strokeWidth="12" 
                         stroke="#ff9f43" 
                         strokeLinecap="round" 
                         strokeDasharray="283" 
                         strokeDashoffset={283 - (283 * displayProgress) / 100}
                         transform="rotate(-90 50 50)"
-                          transition={{ duration: 0.5 }}
+                        transition={{ duration: 0.5 }}
                       />
+                      
+                      {/* At 100%, show a different animation to indicate completion */}
+                      {displayProgress === 100 && (
+                        <motion.circle
+                          cx="50"
+                          cy="50"
+                          r="48"
+                          fill="none"
+                          strokeWidth="2"
+                          stroke="#22c55e"
+                          opacity="0.5"
+                          animate={{ 
+                            r: [48, 56, 48],
+                            opacity: [0.5, 0.8, 0.5]
+                          }}
+                          transition={{ 
+                            duration: 1.5,
+                            repeat: 2,
+                            ease: "easeInOut"
+                          }}
+                        />
+                      )}
                     </svg>
+                    
                     <div className="absolute inset-0 flex items-center justify-center">
-                        <span className="text-xl font-semibold text-deep-blue">
+                      <motion.span 
+                        className="text-2xl font-semibold text-deep-blue"
+                        animate={displayProgress >= 90 ? {
+                          scale: [1, 1.05, 1],
+                        } : {}}
+                        transition={{ 
+                          duration: 1.5, 
+                          repeat: displayProgress >= 90 ? Infinity : 0,
+                          repeatType: "reverse" 
+                        }}
+                      >
                         {displayProgress}%
-                      </span>
+                      </motion.span>
                     </div>
                   </div>
-                  <p className="text-xl font-medium text-deep-blue mb-3">{analysisStage || 'Analyzing your resume...'}</p>
-                  <p className="text-sm text-gray-500 text-center max-w-md">
-                    Our AI is comparing your resume with the job description to provide personalized feedback.
-                  </p>
+                  
+                  {/* Main message display */}
+                  <div className="min-h-[4rem] flex items-center justify-center">
+                    <AnimatePresence mode="wait">
+                      <motion.div
+                        key={analysisStage} // This forces a re-render with animation when the stage changes
+                        initial={{ opacity: 0, y: 10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        exit={{ opacity: 0, y: -10 }}
+                        transition={{ duration: 0.3 }}
+                        className="text-center"
+                      >
+                        <h3 className="text-xl font-medium text-deep-blue mb-2 flex items-center justify-center">
+                          {displayProgress === 100 ? (
+                            <motion.span
+                              animate={{ scale: [1, 1.1, 1] }}
+                              transition={{ 
+                                duration: 1, 
+                                repeat: 1,
+                                repeatType: "reverse" 
+                              }}
+                              className="text-green-600"
+                            >
+                              Analysis complete!
+                            </motion.span>
+                          ) : displayProgress >= 90 ? (
+                            <>
+                              <motion.span
+                                animate={{ scale: [1, 1.03, 1] }}
+                                transition={{ 
+                                  duration: 2, 
+                                  repeat: Infinity,
+                                  repeatType: "loop" 
+                                }}
+                              >
+                                {analysisStage}
+                              </motion.span>
+                              <motion.span
+                                animate={{ 
+                                  opacity: [0, 1, 0],
+                                  x: [0, 3, 0]
+                                }}
+                                transition={{ 
+                                  duration: 1.5, 
+                                  repeat: Infinity,
+                                  repeatType: "loop" 
+                                }}
+                                className="ml-1"
+                              >
+                                <span className="inline-flex">
+                                  <span className="ml-0.5">.</span>
+                                  <span className="ml-0.5">.</span>
+                                  <span className="ml-0.5">.</span>
+                                </span>
+                              </motion.span>
+                            </>
+                          ) : (
+                            <>{analysisStage}</>
+                          )}
+                        </h3>
+                        
+                        {displayProgress >= 90 && (
+                          <motion.p 
+                            className="text-sm text-gray-600"
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            transition={{ delay: 0.2 }}
+                          >
+                            {(() => {
+                              // Create a temporary array for the subtasks that's accessible within this scope
+                              const subtasks: Record<string, string> = {
+                                'Calculating match scores...': 'Measuring keyword relevance',
+                                'Evaluating overall compatibility...': 'Analyzing experience fit',
+                                'Creating improvement recommendations...': 'Identifying growth areas',
+                                'Generating market insights...': 'Comparing with industry standards',
+                                'Finalizing comprehensive report...': 'Assembling all components',
+                                'Finalizing analysis...': 'Processing complex AI analysis'
+                              };
+                              return subtasks[analysisStage] || 'Processing complex AI analysis';
+                            })()}
+                          </motion.p>
+                        )}
+                      </motion.div>
+                    </AnimatePresence>
+                  </div>
+                  
+                  {/* Description text */}
+                  <motion.p 
+                    className="text-sm text-gray-500 text-center max-w-md mt-4 px-4"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ delay: 0.3 }}
+                  >
+                    {displayProgress === 100 ? (
+                      <>
+                        Your resume has been successfully analyzed! Loading your personalized results...
+                      </>
+                    ) : displayProgress >= 90 ? (
+                      <>
+                        We're in the final stages of processing your resume with our advanced AI. This may take a moment as we generate comprehensive insights tailored to your profile.
+                      </>
+                    ) : (
+                      <>
+                        Our AI is comparing your resume with the job description to provide personalized feedback and actionable insights.
+                      </>
+                    )}
+                  </motion.p>
+                  
+                  {/* Progress indicator during 90-99% phase */}
+                  {displayProgress >= 90 && displayProgress < 100 && (
+                    <motion.div 
+                      className="mt-8 flex justify-center items-center w-full max-w-xs mx-auto"
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: 0.4 }}
+                    >
+                      <div className="relative w-full h-1.5 bg-gray-200 rounded-full overflow-hidden">
+                        <motion.div
+                          className="absolute top-0 left-0 h-full bg-accent-orange rounded-full"
+                          animate={{ 
+                            x: ["-100%", "100%"]
+                          }}
+                          transition={{ 
+                            duration: 2, 
+                            repeat: Infinity,
+                            ease: "easeInOut" 
+                          }}
+                        />
+                      </div>
+                    </motion.div>
+                  )}
+                  
+                  {/* Completion indicator at 100% */}
+                  {displayProgress === 100 && (
+                    <motion.div 
+                      className="mt-8 flex flex-col items-center"
+                      initial={{ opacity: 0, y: 10 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      transition={{ delay: 0.2 }}
+                    >
+                      <motion.div 
+                        className="text-green-600"
+                        animate={{ scale: [1, 1.2, 1] }}
+                        transition={{ duration: 1, repeat: 1 }}
+                      >
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                          <path strokeLinecap="round" strokeLinejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                      </motion.div>
+                      <p className="text-green-600 font-medium mt-2">Ready to view results!</p>
+                    </motion.div>
+                  )}
                   </motion.div>
               )}
               </AnimatePresence>

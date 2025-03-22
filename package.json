@@ -2,6 +2,7 @@
   "dependencies": {
     "@headlessui/react": "^2.2.0",
     "@types/lodash": "^4.17.16",
+    "contentful": "^11.5.10",
     "date-fns": "^4.1.0",
     "embla-carousel-autoplay": "^8.5.2",
     "embla-carousel-react": "^8.5.2",

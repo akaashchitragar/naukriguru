@@ -8,6 +8,7 @@ interface PreloaderProps {
 
 const Preloader = ({ finishLoading }: PreloaderProps) => {
   const [counter, setCounter] = useState(0);
+  const [fadeOut, setFadeOut] = useState(false);
 
   useEffect(() => {
     // Make sure this effect runs only in the browser
@@ -17,7 +18,10 @@ const Preloader = ({ finishLoading }: PreloaderProps) => {
       setCounter(prev => {
         if (prev >= 100) {
           clearInterval(timer);
-          setTimeout(() => finishLoading(), 500);
+          // Start fade out animation before finishing loading
+          setFadeOut(true);
+          // Add a longer delay to ensure smooth transition
+          setTimeout(() => finishLoading(), 1000);
           return 100;
         }
         return prev + 1;
@@ -28,7 +32,7 @@ const Preloader = ({ finishLoading }: PreloaderProps) => {
   }, [finishLoading]);
 
   return (
-    <div className="fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-white dark:bg-gray-900 fade-in">
+    <div className={`fixed inset-0 z-[9999] flex flex-col items-center justify-center bg-white dark:bg-gray-900 transition-opacity duration-1000 ${fadeOut ? 'opacity-0' : 'opacity-100'}`}>
       <div className="relative h-32 w-32">
         <svg 
           className="preloader-spin"
@@ -68,9 +72,10 @@ const Preloader = ({ finishLoading }: PreloaderProps) => {
       <div className="mt-6 text-center">
         <h2 className="text-xl font-semibold text-gray-800 dark:text-white">JobCraft.in</h2>
         <p className="mt-2 text-gray-600 dark:text-gray-300">
-          {counter < 30 ? 'Initializing...' : 
-           counter < 60 ? 'Loading resources...' : 
-           counter < 90 ? 'Preparing workspace...' : 
+          {counter < 25 ? 'Initializing dashboard...' : 
+           counter < 50 ? 'Loading your resume data...' : 
+           counter < 75 ? 'Preparing workspace...' : 
+           counter < 95 ? 'Almost ready...' :
            'Ready to launch!'}
         </p>
       </div>

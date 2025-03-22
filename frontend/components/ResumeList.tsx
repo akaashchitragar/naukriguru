@@ -378,12 +378,6 @@ export default function ResumeList() {
                             View
                           </a>
                           <button 
-                            className="text-white bg-deep-blue hover:bg-deep-blue/90 px-3 py-1 rounded transition-colors"
-                            onClick={() => handleAnalyzeResume(resume.id)}
-                          >
-                            Analyze
-                          </button>
-                          <button 
                             className="text-red-500 hover:text-red-700 hover:bg-red-50 p-1 rounded transition-colors"
                             onClick={() => confirmDelete(resume.id)}
                             aria-label="Delete resume"

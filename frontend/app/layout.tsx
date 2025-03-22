@@ -4,6 +4,7 @@ import { Inter } from 'next/font/google';
 import { AuthProvider } from '@/lib/auth';
 import { ToastProvider } from '@/components/Toast';
 import { ErrorBoundary } from '@/components/ErrorBoundary';
+import CookieConsent from '@/components/CookieConsent';
 import { PreloaderProvider } from '@/lib/preloader';
 
 const inter = Inter({ subsets: ['latin'] });
@@ -35,6 +36,7 @@ export default function RootLayout({
                 <main className="min-h-screen bg-off-white">
                   {children}
                 </main>
+                <CookieConsent />
               </PreloaderProvider>
             </ToastProvider>
           </AuthProvider>
