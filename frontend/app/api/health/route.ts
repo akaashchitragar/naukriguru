@@ -3,7 +3,7 @@ import { NextResponse } from 'next/server';
 export async function GET() {
   try {
     // Get the backend URL from environment or use the production URL
-    const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'https://backend-475274911587.us-central1.run.app';
+    const backendUrl = process.env.NEXT_PUBLIC_API_URL || 'https://naukri-guru.el.r.appspot.com';
     
     const response = await fetch(`${backendUrl}/health`, {
       method: 'GET',

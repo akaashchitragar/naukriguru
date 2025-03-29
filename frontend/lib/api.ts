@@ -103,7 +103,7 @@ export class ApiClient {
   constructor() {
     // In production, always use the deployed backend URL
     this.baseUrl = process.env.NODE_ENV === 'production' 
-      ? 'https://backend-475274911587.us-central1.run.app'
+      ? 'https://naukri-guru.el.r.appspot.com'
       : (process.env.NEXT_PUBLIC_API_URL || 'http://localhost:8000');
     
     // Enable mock API if specified in environment or if we're in development

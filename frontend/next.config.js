@@ -16,7 +16,7 @@ const nextConfig = {
     return [
       {
         source: '/api/:path*',
-        destination: 'https://backend-475274911587.us-central1.run.app/:path*',
+        destination: 'https://naukri-guru.el.r.appspot.com/:path*',
       },
     ];
   },
