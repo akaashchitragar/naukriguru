@@ -73,6 +73,13 @@ module.exports = {
           foreground: "hsl(var(--card-foreground))",
         },
       },
+      backgroundSize: {
+        'size-200': '200% 200%',
+      },
+      backgroundPosition: {
+        'pos-0': '0% 0%',
+        'pos-100': '100% 100%',
+      },
       borderRadius: {
         lg: "var(--radius)",
         md: "calc(var(--radius) - 2px)",
@@ -91,11 +98,17 @@ module.exports = {
           from: { opacity: 0 },
           to: { opacity: 1 },
         },
+        "scan": {
+          "0%": { transform: "translateY(0px)" },
+          "50%": { transform: "translateY(80px)" },
+          "100%": { transform: "translateY(0px)" },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
         "fadeIn": "fadeIn 0.5s ease-out",
+        "scan": "scan 3s ease-in-out infinite",
       },
     },
   },

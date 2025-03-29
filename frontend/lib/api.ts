@@ -69,6 +69,8 @@ interface Analysis {
     industry: string;
     title: string;
     recommendations: string[];
+    current_year?: number; // Added field for current year
+    market_overview?: string; // Added field for market overview
   };
   // Job title extracted from job description
   job_title?: string;

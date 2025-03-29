@@ -11,6 +11,7 @@ import { useToast, ToastType } from './Toast';
 import { handleAsyncOperation } from '@/lib/error-utils';
 import { motion, AnimatePresence } from 'framer-motion';
 import { getFirestore, collection, addDoc, serverTimestamp } from 'firebase/firestore';
+import FeedbackCard from './FeedbackCard';
 
 // Add print styles
 const printStyles = `
@@ -493,6 +494,78 @@ const printStyles = `
     body.printing .page-break-before {
       page-break-before: always;
     }
+    
+    /* Enhanced Industry Insights styles */
+    .insights-header {
+      margin-bottom: 12px;
+    }
+    
+    .insights-meta {
+      display: flex;
+      gap: 10px;
+      margin-top: 5px;
+      font-size: 12px;
+      color: #6b7280;
+    }
+    
+    .insights-industry {
+      background-color: #dbeafe;
+      color: #1e40af;
+      padding: 3px 8px;
+      border-radius: 12px;
+      font-weight: 500;
+    }
+    
+    .insights-year {
+      background-color: #dcfce7;
+      color: #166534;
+      padding: 3px 8px;
+      border-radius: 12px;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+    }
+    
+    .insights-year:before {
+      content: '⚡';
+      margin-right: 4px;
+    }
+    
+    .market-overview {
+      background-color: #eff6ff;
+      border-left: 3px solid #3b82f6;
+      padding: 12px;
+      margin-bottom: 16px;
+      font-style: italic;
+      color: #1e40af;
+      border-radius: 0 4px 4px 0;
+    }
+    
+    .recommendations-section h5 {
+      font-size: 14px;
+      font-weight: 600;
+      margin-bottom: 12px;
+      color: #1f2937;
+    }
+    
+    .recommendations-list {
+      list-style-type: none;
+      padding: 0;
+    }
+    
+    .recommendations-list li {
+      display: flex;
+      margin-bottom: 10px;
+      line-height: 1.5;
+    }
+    
+    .recommendation-number {
+      font-weight: 600;
+      color: #2563eb;
+      margin-right: 8px;
+      min-width: 18px;
+    }
+    /* End of enhanced industry insights styles */
   }
 `;
 
@@ -538,9 +611,19 @@ export default function ResumeAnalyzer() {
   const [analysisStage, setAnalysisStage] = useState('');
   const [resultSavedToFirestore, setResultSavedToFirestore] = useState(false);
   const [generatingPDF, setGeneratingPDF] = useState(false);
+  const [fileScanning, setFileScanning] = useState(false);
+  const [fileScanProgress, setFileScanProgress] = useState(0);
   
   // Step state
   const [currentStep, setCurrentStep] = useState<AnalyzerStep>(AnalyzerStep.UPLOAD_RESUME);
+
+  // Constants for file validation
+  const MAX_FILE_SIZE = 10 * 1024 * 1024; // 10MB
+  const ACCEPTED_FILE_TYPES = {
+    'application/pdf': ['.pdf'],
+    'application/msword': ['.doc'],
+    'application/vnd.openxmlformats-officedocument.wordprocessingml.document': ['.docx']
+  };
 
   // Save state to localStorage when it changes
   useEffect(() => {
@@ -652,27 +735,63 @@ export default function ResumeAnalyzer() {
 
   const onDrop = useCallback((acceptedFiles: File[]) => {
     const selectedFile = acceptedFiles[0];
-    if (selectedFile && selectedFile.type === 'application/pdf') {
-      setFile(selectedFile);
-      setError(null);
-      
-      // Reset upload progress to 0 but don't simulate progress here
-      setUploadProgress(0);
-      
-      showToast(ToastType.SUCCESS, 'Resume uploaded successfully');
-    } else {
-      setFile(null);
-      setError('Please upload a PDF file');
-      showToast(ToastType.ERROR, 'Please upload a PDF file');
-    }
+    
+    // Reset states
+    setError(null);
+    setFileScanning(true);
+    setFileScanProgress(0);
+    
+    // Simulate file scanning
+    let progress = 0;
+    const scanInterval = setInterval(() => {
+      progress += 10;
+      setFileScanProgress(progress);
+      if (progress >= 100) {
+        clearInterval(scanInterval);
+        setFileScanning(false);
+        validateAndSetFile(selectedFile);
+      }
+    }, 100);
+    
   }, [showToast]);
+  
+  // File validation function
+  const validateAndSetFile = (file: File) => {
+    // Check if file exists
+    if (!file) {
+      setError('No file selected');
+      showToast(ToastType.ERROR, 'No file selected');
+      return;
+    }
+    
+    // Check file type
+    const isValidFileType = Object.keys(ACCEPTED_FILE_TYPES).includes(file.type);
+    if (!isValidFileType) {
+      setFile(null);
+      setError('Invalid file type. Please upload a PDF, DOC, or DOCX file');
+      showToast(ToastType.ERROR, 'Please upload a PDF, DOC, or DOCX file');
+      return;
+    }
+    
+    // Check file size
+    if (file.size > MAX_FILE_SIZE) {
+      setFile(null);
+      setError(`File is too large. Maximum file size is ${MAX_FILE_SIZE / (1024 * 1024)}MB`);
+      showToast(ToastType.ERROR, `File is too large. Maximum file size is ${MAX_FILE_SIZE / (1024 * 1024)}MB`);
+      return;
+    }
+    
+    // If all validations pass, set the file
+    setFile(file);
+    setUploadProgress(0);
+    showToast(ToastType.SUCCESS, 'Resume uploaded successfully');
+  };
 
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
-    accept: {
-      'application/pdf': ['.pdf']
-    },
-    maxFiles: 1
+    accept: ACCEPTED_FILE_TYPES,
+    maxFiles: 1,
+    maxSize: MAX_FILE_SIZE,
   });
 
   const handleSubmit = async (e?: React.FormEvent) => {
@@ -818,14 +937,56 @@ export default function ResumeAnalyzer() {
   const handleNextStep = () => {
     if (currentStep === AnalyzerStep.UPLOAD_RESUME) {
       if (!file) {
-        setError('Please upload a resume');
+        setError('Please upload a resume to continue');
         showToast(ToastType.ERROR, 'Please upload a resume');
+        
+        // Shake animation for the upload area to indicate it needs attention
+        const uploadArea = document.querySelector('[role="button"]');
+        if (uploadArea) {
+          uploadArea.classList.add('shake-animation');
+          setTimeout(() => {
+            uploadArea.classList.remove('shake-animation');
+          }, 820); // Duration slightly longer than the animation
+        }
+        
         return;
       }
-      // Clear job description when moving to job description step
-      setJobDescription('');
-      setCurrentStep(AnalyzerStep.ENTER_JOB_DESCRIPTION);
+      
+      // Clear any existing error
+      setError(null);
+      
+      // Add a brief delay for animation to complete
+      setTimeout(() => {
+        // Clear job description when moving to job description step
+        setJobDescription('');
+        setCurrentStep(AnalyzerStep.ENTER_JOB_DESCRIPTION);
+      }, 200);
+      
     } else if (currentStep === AnalyzerStep.ENTER_JOB_DESCRIPTION) {
+      if (!jobDescription.trim()) {
+        setError('Please enter a job description to continue');
+        showToast(ToastType.ERROR, 'Please enter a job description');
+        
+        // Focus the textarea
+        const textarea = document.querySelector('textarea');
+        if (textarea) {
+          textarea.focus();
+        }
+        
+        return;
+      }
+      
+      // Validate job description length
+      if (jobDescription.trim().length < 50) {
+        setError('Please enter a more detailed job description for better analysis');
+        showToast(ToastType.WARNING, 'Your job description is too short for accurate analysis');
+        return;
+      }
+      
+      // Clear any existing error
+      setError(null);
+      
+      // Process the submission
       handleSubmit();
     }
   };
@@ -1053,9 +1214,30 @@ export default function ResumeAnalyzer() {
             </div>
             <div class="print-section-content">
               <div class="insights-card">
-                <h4>Industry Demand Analysis</h4>
-                <div class="insights-subtitle">Based on current job market trends</div>
-                ${result?.industry_insights.replace(/\n/g, '<br>')}
+                <div class="insights-header">
+                  <h4>${result?.industry_insights?.title || 'Industry Demand Analysis'}</h4>
+                  <div class="insights-meta">
+                    <span class="insights-industry">${result?.industry_insights?.industry || 'General'}</span>
+                    ${result?.industry_insights?.current_year ? 
+                      `<span class="insights-year">${result?.industry_insights?.current_year} Latest Trends</span>` : 
+                      ''}
+                  </div>
+                </div>
+
+                ${result?.industry_insights?.market_overview ? 
+                  `<div class="market-overview">
+                    <p>${result?.industry_insights?.market_overview}</p>
+                  </div>` : 
+                  ''}
+                
+                <div class="recommendations-section">
+                  <h5>Key Recommendations</h5>
+                  <ul class="recommendations-list">
+                    ${result?.industry_insights?.recommendations?.map((recommendation: string, index: number) => 
+                      `<li><span class="recommendation-number">${index + 1}.</span> ${recommendation}</li>`
+                    ).join('') || 'No specific recommendations available.'}
+                  </ul>
+                </div>
               </div>
             </div>
 
@@ -1117,9 +1299,38 @@ export default function ResumeAnalyzer() {
     }
   };
 
+  const handleRescan = () => {
+    setCurrentStep(AnalyzerStep.UPLOAD_RESUME);
+    setResult(null);
+  };
+
+  const getFeedbackMessage = (score: number) => {
+    if (score >= 80) {
+      return `Your resume is an excellent match! You've highlighted the right skills and experiences for this position.`;
+    } else if (score >= 65) {
+      return `Your resume matches many requirements, but there's room for improvement to stand out more.`;
+    } else if (score >= 40) {
+      return `Your resume needs attention in several areas to better align with what employers are looking for.`;
+    } else {
+      return `Your resume needs significant revisions to match this job's requirements. Focus on highlighting relevant skills.`;
+    }
+  };
+
   return (
     <div className="w-full mx-auto min-h-[calc(100vh-64px)]">
       <style dangerouslySetInnerHTML={{ __html: printStyles }} />
+      
+      {/* Custom animation styles */}
+      <style dangerouslySetInnerHTML={{ __html: `
+        @keyframes shake {
+          0%, 100% { transform: translateX(0); }
+          10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+          20%, 40%, 60%, 80% { transform: translateX(5px); }
+        }
+        .shake-animation {
+          animation: shake 0.8s cubic-bezier(.36,.07,.19,.97) both;
+        }
+      `}} />
       
       {/* Multi-step form (in-page, directly in the layout) */}
       {currentStep !== AnalyzerStep.RESULTS && (
@@ -1166,10 +1377,27 @@ export default function ResumeAnalyzer() {
                             ? 'border-green-400 bg-green-50' 
                             : 'border-gray-300 hover:border-soft-purple hover:bg-gray-50'
                       }`}
+                      role="button"
+                      aria-label="Upload resume area. Drag and drop or click to browse files."
+                      tabIndex={0}
                     >
-                      <input {...getInputProps()} />
+                      <input {...getInputProps()} aria-label="Resume file input" />
                       
-                      {file ? (
+                      {fileScanning ? (
+                        <div className="space-y-4">
+                          <svg className="animate-spin h-10 w-10 mx-auto text-accent-orange" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                            <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                            <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                          </svg>
+                          <p className="text-sm font-medium text-gray-900">Scanning file...</p>
+                          <div className="w-full bg-gray-200 rounded-full h-2.5 max-w-xs mx-auto">
+                            <motion.div 
+                              className="bg-accent-orange h-2.5 rounded-full"
+                              style={{ width: `${fileScanProgress}%` }}
+                            ></motion.div>
+                          </div>
+                        </div>
+                      ) : file ? (
                         <div className="space-y-2">
                             <motion.div
                               initial={{ scale: 0.8 }}
@@ -1177,11 +1405,26 @@ export default function ResumeAnalyzer() {
                               transition={{ type: "spring", stiffness: 200, damping: 10 }}
                             >
                           <svg xmlns="http://www.w3.org/2000/svg" className="h-10 w-10 mx-auto text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
                           </svg>
-                            </motion.div>
-                          <p className="text-sm font-medium text-gray-900">{file.name}</p>
-                          <div className="w-full bg-gray-200 rounded-full h-2.5">
+                          </motion.div>
+                          <motion.p 
+                            className="text-sm font-medium text-gray-900"
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            transition={{ delay: 0.2 }}
+                          >
+                            {file.name}
+                          </motion.p>
+                          <motion.p 
+                            className="text-xs text-gray-500"
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            transition={{ delay: 0.3 }}
+                          >
+                            {(file.size / 1024).toFixed(1)} KB
+                          </motion.p>
+                          <div className="w-full bg-gray-200 rounded-full h-2.5 max-w-xs mx-auto">
                               <motion.div 
                                 className="bg-green-500 h-2.5 rounded-full"
                                 initial={{ width: 0 }}
@@ -1195,26 +1438,56 @@ export default function ResumeAnalyzer() {
                               e.stopPropagation();
                               setFile(null);
                             }}
-                            className="text-xs text-red-600 hover:text-red-800"
+                            className="mt-2 text-xs bg-red-50 text-red-600 hover:text-red-800 px-2 py-1 rounded-md transition-colors"
+                            aria-label="Remove file"
                           >
+                            <svg xmlns="http://www.w3.org/2000/svg" className="h-3 w-3 inline mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                            </svg>
                             Remove file
                           </button>
                         </div>
                       ) : isDragActive ? (
                         <div className="space-y-2">
-                          <svg xmlns="http://www.w3.org/2000/svg" className="h-10 w-10 mx-auto text-accent-orange" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 19l3 3m0 0l3-3m-3 3V10" />
-                          </svg>
+                          <motion.div
+                            animate={{ 
+                              scale: [1, 1.1, 1],
+                              y: [0, -5, 0] 
+                            }}
+                            transition={{ 
+                              duration: 1.5,
+                              repeat: Infinity,
+                              repeatType: "reverse" 
+                            }}
+                          >
+                            <svg xmlns="http://www.w3.org/2000/svg" className="h-10 w-10 mx-auto text-accent-orange" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M9 5l7 7-7 7" />
+                            </svg>
+                          </motion.div>
                           <p className="text-sm font-medium text-gray-900">Drop your resume here</p>
                         </div>
                       ) : (
                         <div className="space-y-2">
-                          <svg xmlns="http://www.w3.org/2000/svg" className="h-10 w-10 mx-auto text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
-                          </svg>
-                            <p className="text-sm font-medium text-gray-900">Upload Your Resume</p>
+                          <motion.div
+                            animate={{ 
+                              y: [0, -5, 0] 
+                            }}
+                            transition={{ 
+                              duration: 2,
+                              repeat: Infinity,
+                              repeatType: "reverse" 
+                            }}
+                          >
+                            <svg xmlns="http://www.w3.org/2000/svg" className="h-10 w-10 mx-auto text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                            </svg>
+                          </motion.div>
+                          <p className="text-sm font-medium text-gray-900">Upload Your Resume</p>
                           <p className="text-xs text-gray-500">Drag & drop your resume here, or click to browse</p>
-                          <p className="text-xs text-gray-500">Only PDF files are supported</p>
+                          <div className="mt-2 text-xs text-gray-400 flex flex-col items-center">
+                            <p>Accepted file types: PDF, DOC, DOCX</p>
+                            <p>Maximum file size: 10MB</p>
+                          </div>
                         </div>
                       )}
                     </div>
@@ -1225,18 +1498,39 @@ export default function ResumeAnalyzer() {
                           initial={{ opacity: 0, height: 0 }}
                           animate={{ opacity: 1, height: 'auto' }}
                           transition={{ duration: 0.3 }}
+                          role="alert"
                         >
                         <div className="flex">
                           <div className="flex-shrink-0">
-                            <svg className="h-5 w-5 text-red-500" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                            <svg className="h-5 w-5 text-red-500" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" aria-hidden="true">
                               <path fillRule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clipRule="evenodd" />
                             </svg>
                           </div>
                           <div className="ml-3">
-                            <p className="text-sm">{error}</p>
+                            <p className="text-sm font-medium">{error}</p>
                           </div>
                         </div>
                         </motion.div>
+                    )}
+                    
+                    {!file && !error && (
+                      <motion.div 
+                        className="mt-4 p-3 bg-blue-50 border-l-4 border-blue-500 text-blue-700 rounded-md"
+                        initial={{ opacity: 0 }}
+                        animate={{ opacity: 1 }}
+                        transition={{ delay: 0.5, duration: 0.5 }}
+                      >
+                        <div className="flex">
+                          <div className="flex-shrink-0">
+                            <svg className="h-5 w-5 text-blue-500" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+                              <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clipRule="evenodd" />
+                            </svg>
+                          </div>
+                          <div className="ml-3">
+                            <p className="text-sm">Your resume will be analyzed to match it with job requirements. We don't store your data beyond what's needed for analysis.</p>
+                          </div>
+                        </div>
+                      </motion.div>
                     )}
                   </div>
                   </motion.div>
@@ -1545,27 +1839,68 @@ export default function ResumeAnalyzer() {
                   {currentStep > AnalyzerStep.UPLOAD_RESUME && (
                     <motion.button
                       onClick={handlePrevStep}
-                      className="px-4 py-2 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300 transition-colors"
+                      className="px-4 py-2 bg-gray-200 text-gray-800 rounded-md hover:bg-gray-300 transition-colors flex items-center gap-2"
                       initial={{ opacity: 0, x: -10 }}
                       animate={{ opacity: 1, x: 0 }}
                       transition={{ delay: 0.2 }}
                       whileHover={{ scale: 1.05 }}
                       whileTap={{ scale: 0.95 }}
                     >
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
+                      </svg>
                       Back
                     </motion.button>
                   )}
                   <div className={currentStep === AnalyzerStep.UPLOAD_RESUME ? "flex-grow" : ""}></div> {/* Spacer */}
                   <motion.button
                     onClick={handleNextStep}
-                    className="px-6 py-2 bg-accent-orange hover:bg-accent-orange/90 text-white font-medium rounded-md shadow-sm hover:shadow transition-all"
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
+                    className={`flex items-center gap-2 px-6 py-2 font-medium rounded-md shadow-sm hover:shadow transition-all ${
+                      file || currentStep === AnalyzerStep.ENTER_JOB_DESCRIPTION && jobDescription.trim().length > 0
+                        ? 'bg-accent-orange hover:bg-accent-orange/90 text-white'
+                        : 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                    }`}
+                    whileHover={file || (currentStep === AnalyzerStep.ENTER_JOB_DESCRIPTION && jobDescription.trim().length > 0) ? { scale: 1.05 } : {}}
+                    whileTap={file || (currentStep === AnalyzerStep.ENTER_JOB_DESCRIPTION && jobDescription.trim().length > 0) ? { scale: 0.95 } : {}}
                     initial={{ opacity: 0, x: 10 }}
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ delay: 0.2 }}
+                    disabled={
+                      (currentStep === AnalyzerStep.UPLOAD_RESUME && !file) || 
+                      (currentStep === AnalyzerStep.ENTER_JOB_DESCRIPTION && !jobDescription.trim())
+                    }
                   >
-                    {currentStep === AnalyzerStep.ENTER_JOB_DESCRIPTION ? 'Analyze' : 'Next'}
+                    {currentStep === AnalyzerStep.ENTER_JOB_DESCRIPTION ? (
+                      <>
+                        Analyze
+                        <motion.svg 
+                          xmlns="http://www.w3.org/2000/svg" 
+                          className="h-4 w-4" 
+                          fill="none" 
+                          viewBox="0 0 24 24" 
+                          stroke="currentColor"
+                          animate={{ x: [0, 2, 0] }}
+                          transition={{ repeat: Infinity, duration: 1.5 }}
+                        >
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 8l4 4m0 0l-4 4m4-4H3" />
+                        </motion.svg>
+                      </>
+                    ) : (
+                      <>
+                        Next
+                        <motion.svg 
+                          xmlns="http://www.w3.org/2000/svg" 
+                          className="h-4 w-4" 
+                          fill="none" 
+                          viewBox="0 0 24 24" 
+                          stroke="currentColor"
+                          animate={file ? { x: [0, 2, 0] } : {}}
+                          transition={{ repeat: Infinity, duration: 1.5 }}
+                        >
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
+                        </motion.svg>
+                      </>
+                    )}
                   </motion.button>
                 </div>
               )}

@@ -15,7 +15,6 @@ import PricingSection from '@/components/home/PricingSection';
 import CTASection from '@/components/home/CTASection';
 import Footer from '@/components/home/Footer';
 import LoginModal from '@/components/LoginModal';
-import { PreloaderProvider } from '@/lib/preloader';
 
 export default function Home() {
   const { user } = useAuth();
@@ -52,29 +51,27 @@ export default function Home() {
 
   // Always show the marketing homepage if not logged in
   return (
-    <PreloaderProvider>
-      <div className="min-h-screen">
-        <Header 
-          user={null} 
-          activeTab="analyze" 
-          onTabChange={() => {}}
-          onLoginClick={handleOpenLoginModal}
-        />
-        
-        <main>
-          <HeroSection onLoginClick={handleOpenLoginModal} />
-          <FeaturesSection onLoginClick={handleOpenLoginModal} />
-          <HowItWorksSection onLoginClick={handleOpenLoginModal} />
-          <TestimonialsSection />
-          <PricingSection onLoginClick={handleOpenLoginModal} />
-          <CTASection onLoginClick={handleOpenLoginModal} />
-        </main>
-        
-        <Footer />
+    <div className="min-h-screen">
+      <Header 
+        user={null} 
+        activeTab="analyze" 
+        onTabChange={() => {}}
+        onLoginClick={handleOpenLoginModal}
+      />
+      
+      <main>
+        <HeroSection onLoginClick={handleOpenLoginModal} />
+        <FeaturesSection onLoginClick={handleOpenLoginModal} />
+        <HowItWorksSection onLoginClick={handleOpenLoginModal} />
+        <TestimonialsSection />
+        <PricingSection onLoginClick={handleOpenLoginModal} />
+        <CTASection onLoginClick={handleOpenLoginModal} />
+      </main>
+      
+      <Footer />
 
-        {/* Login Modal */}
-        <LoginModal isOpen={isLoginModalOpen} onClose={handleCloseLoginModal} />
-      </div>
-    </PreloaderProvider>
+      {/* Login Modal */}
+      <LoginModal isOpen={isLoginModalOpen} onClose={handleCloseLoginModal} />
+    </div>
   );
 } 

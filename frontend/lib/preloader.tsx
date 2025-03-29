@@ -21,37 +21,21 @@ export const PreloaderProvider = ({ children }: { children: React.ReactNode }) =
     setIsLoading(false);
   };
 
-  // Define routes that should show the preloader
-  const routesWithPreloader = ['/', '/auth/login', '/auth/signup', '/dashboard'];
+  // Define routes that should show the preloader - now only homepage
+  const routesWithPreloader = ['/'];
   
   // Check if current route should show preloader
-  const shouldShowPreloader = routesWithPreloader.some(route => 
-    pathname === route || 
-    (route === '/dashboard' && pathname?.startsWith('/dashboard/'))
-  );
+  const shouldShowPreloader = pathname === '/';
 
   // Function to check if preloader should be shown on specific routes
   const showPreloaderOnRoute = (routes: string[]) => {
-    return routes.some(route => 
-      pathname === route || 
-      (route.endsWith('/*') && pathname?.startsWith(route.slice(0, -2)))
-    );
+    return routes.some(route => pathname === route);
   };
 
   // Determine the loading time based on the route
   const getLoadingTime = () => {
-    // Dashboard pages need a bit more time to feel smooth
-    if (pathname && pathname.startsWith('/dashboard')) {
-      return 3000; // 3 seconds for dashboard pages
-    }
-    
-    // Auth pages
-    if (pathname === '/auth/login' || pathname === '/auth/signup') {
-      return 2500; // 2.5 seconds for authentication pages
-    }
-    
-    // Default loading time for other pages
-    return 2000; // 2 seconds
+    // Only homepage has preloader now, set a reasonable time
+    return 2000; // 2 seconds for homepage
   };
 
   // Just use a simple timer to show the preloader for a fixed time

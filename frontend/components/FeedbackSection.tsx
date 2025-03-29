@@ -1,6 +1,7 @@
    'use client';
 
 import React, { useState } from 'react';
+import IndustryInsightCard from './IndustryInsightCard';
 
 interface FeedbackSectionProps {
   feedback: string;
@@ -10,6 +11,8 @@ interface FeedbackSectionProps {
     industry: string;
     title: string;
     recommendations: string[];
+    current_year?: number;
+    market_overview?: string;
   };
   jobTitle?: string;
   onPrint?: () => void;
@@ -75,19 +78,27 @@ export default function FeedbackSection({
       );
     }
     
+    const currentYear = industryInsights.current_year || new Date().getFullYear();
+    
     return (
       <div className="ml-4 flex-1">
-        <div className="flex items-center mb-3">
-          <h4 className="text-lg font-semibold text-blue-700">{industryInsights.title}</h4>
-          <span className="ml-2 px-2 py-1 text-xs font-medium bg-blue-100 text-blue-800 rounded-full">
-            {industryInsights.industry}
-          </span>
-          {jobTitle && (
-            <span className="ml-2 px-2 py-1 text-xs font-medium bg-purple-100 text-purple-800 rounded-full">
-              {jobTitle}
-            </span>
-          )}
-        </div>
+        {/* Use the IndustryInsightCard with direct styling */}
+        <IndustryInsightCard
+          title={industryInsights.title}
+          industry={industryInsights.industry}
+          jobTitle={jobTitle}
+          currentYear={currentYear}
+          className="mb-4"
+        />
+
+        {/* Market overview section */}
+        {industryInsights.market_overview && (
+          <div className="mb-4 p-3 bg-blue-50 border-l-4 border-blue-400 rounded-r-md">
+            <p className="text-blue-800 text-sm italic">{industryInsights.market_overview}</p>
+          </div>
+        )}
+        
+        {/* Recommendations list */}
         <ul className="space-y-3">
           {industryInsights.recommendations.map((recommendation, index) => (
             <li key={index} className="flex items-start">
@@ -454,11 +465,22 @@ export default function FeedbackSection({
           <div className="print-section-content">
             <h3 className="print-section-header">Industry Insights</h3>
             {industryInsights ? (
-              <div className="p-4 border border-blue-100 rounded-lg bg-blue-50">
-                <div className="mb-3">
-                  <h4 className="text-lg font-semibold text-blue-700">{industryInsights.title}</h4>
-                  <div className="text-sm text-gray-600 mb-2">Industry: {industryInsights.industry}</div>
-                </div>
+              <div className="p-4 rounded-lg">
+                {/* Use consistent component for print view as well */}
+                <IndustryInsightCard
+                  title={industryInsights.title}
+                  industry={industryInsights.industry}
+                  jobTitle={jobTitle}
+                  currentYear={industryInsights.current_year}
+                  className="mb-4 print-friendly"
+                />
+                
+                {industryInsights.market_overview && (
+                  <div className="mb-4 p-3 bg-blue-100 border-l-4 border-blue-400 rounded-r-md">
+                    <p className="text-blue-800 text-sm italic">{industryInsights.market_overview}</p>
+                  </div>
+                )}
+                
                 <ul className="space-y-3">
                   {industryInsights.recommendations.map((recommendation, index) => (
                     <li key={index} className="flex items-start">
@@ -710,7 +732,7 @@ export default function FeedbackSection({
         
         {/* Industry-specific Recommendations */}
         {(activeTab === 'industry') && (
-          <div className="bg-blue-50 p-6 rounded-lg border border-blue-100 transition-all duration-300 hover:shadow-md">
+          <div className="p-6 rounded-lg transition-all duration-300">
             <div className="flex items-start">
               <div className="flex-shrink-0 mt-1">
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">

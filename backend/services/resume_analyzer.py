@@ -33,7 +33,9 @@ async def analyze_resume_with_gemini(
     cache_key = _generate_cache_key(resume_text, job_description)
     if cache_key in _analysis_cache:
         cached_result, timestamp = _analysis_cache[cache_key]
-        if datetime.now() - timestamp < _cache_ttl:
+        # Only use cached results if they are very recent (1 hour)
+        # This ensures industry insights are always current
+        if datetime.now() - timestamp < timedelta(hours=1):
             print("Using cached analysis result")
             return cached_result
 
@@ -61,6 +63,9 @@ async def analyze_resume_with_gemini(
             generation_config=generation_config
         )
 
+        # Get current year for industry insights
+        current_year = datetime.now().year
+
         # Create a more structured and efficient prompt
         prompt = f"""
         You are an expert resume analyzer for job applications. Analyze this resume against the job description.
@@ -70,10 +75,12 @@ async def analyze_resume_with_gemini(
         2. Extract the job title from the job description
         3. Identify matching skills between the resume and job description
         4. Provide personalized and specific improvement areas tailored to this exact resume and job
-        5. Create industry-specific insights based on latest trends and best practices (2024)
-        6. Pay special attention to Applicant Tracking System (ATS) optimization techniques
-        7. Analyze the resume formatting for ATS compatibility and readability
-        8. Provide specific feedback on font, layout, and page setup
+        5. Create industry-specific insights based on LATEST industry trends and best practices for {current_year}
+        6. Include specific job market trends and hiring patterns that are current for {current_year}
+        7. Pay special attention to Applicant Tracking System (ATS) optimization techniques
+        8. Analyze the resume formatting for ATS compatibility and readability
+        9. Provide specific feedback on font, layout, and page setup
+        10. Conduct brief web research if needed to ensure industry insights are current
         
         RESUME:
         {resume_text}
@@ -98,13 +105,15 @@ async def analyze_resume_with_gemini(
             "job_title": "<extracted job title>",
             "industry_insights": {{
                 "industry": "<industry name>",
-                "title": "<industry title>",
+                "title": "<industry title for {current_year}>",
+                "current_year": {current_year},
+                "market_overview": "<1-2 sentence current market overview for this industry in {current_year}>",
                 "recommendations": [
-                    "<actionable industry recommendation 1>",
-                    "<actionable industry recommendation 2>",
-                    "<actionable industry recommendation 3>",
-                    "<actionable industry recommendation 4>",
-                    "<actionable industry recommendation 5 with focus on ATS>"
+                    "<actionable industry recommendation 1 with {current_year} trends>",
+                    "<actionable industry recommendation 2 with {current_year} trends>",
+                    "<actionable industry recommendation 3 with {current_year} trends>",
+                    "<actionable industry recommendation 4 with {current_year} trends>",
+                    "<actionable industry recommendation 5 with focus on ATS and {current_year} trends>"
                 ]
             }},
             "formatting_checks": {{
@@ -139,17 +148,19 @@ async def analyze_resume_with_gemini(
         - Format the feedback as a short 2-sentence intro paragraph followed by 4-6 detailed bullet points
         - Do NOT use asterisks (*) or any symbols at the beginning of points
         - Ensure all improvement areas are specific, actionable, and tailored to this exact resume
-        - Industry insights must include up-to-date information and trends from 2024
-        - Include 2-3 ATS-specific optimization tips in the recommendations
+        - Industry insights MUST include up-to-date information and trends from {current_year}
+        - Use your internet search capability if needed to verify latest industry trends for {current_year}
+        - Include 2-3 ATS-specific optimization tips in the recommendations that reflect {current_year} trends
         - All feedback should be constructive, specific, and directly relevant to the job
         - Personalize all feedback to the candidate's experience level and role
         - Provide detailed formatting checks focused on ATS compatibility and recruiter readability
+        - Make sure all industry insights reflect the latest hiring patterns and job market conditions
         """
 
         # Generate the response with timeout
         response = await asyncio.wait_for(
             model.generate_content_async(prompt),
-            timeout=45  # Increase to 45 second timeout to allow for web searches and detailed analysis
+            timeout=50  # Increase to 50 second timeout to allow for web searches and detailed analysis
         )
         response_text = response.text
 
@@ -171,6 +182,7 @@ async def analyze_resume_with_gemini(
                 result = json.loads(json_str)
             else:
                 # Fallback to a default structure
+                current_year = datetime.now().year
                 result = {
                     "match_score": 0,
                     "feedback": "Failed to analyze resume. Please try again.",
@@ -190,13 +202,15 @@ async def analyze_resume_with_gemini(
                     "job_title": "Unknown Position",
                     "industry_insights": {
                         "industry": "General",
-                        "title": "General Resume Recommendations",
+                        "title": f"General Resume Recommendations for {current_year}",
+                        "current_year": current_year,
+                        "market_overview": f"The job market in {current_year} emphasizes digital skills and adaptability across all industries. Companies are prioritizing candidates with demonstrated technical proficiency and soft skills.",
                         "recommendations": [
-                            "Tailor your resume to match the specific job description",
-                            "Quantify achievements with specific metrics when possible",
-                            "Use action verbs to begin bullet points",
-                            "Include relevant keywords from the job description",
-                            "Ensure your resume is ATS-friendly with a clean format"
+                            f"Tailor your resume to match the specific job description, focusing on {current_year}'s most demanded skills",
+                            f"Quantify achievements with specific metrics - a key differentiator in {current_year}'s competitive job market",
+                            f"Use action verbs to begin bullet points for greater impact with modern ATS systems",
+                            f"Include relevant keywords from the job description to pass the initial {current_year} ATS screening",
+                            f"Ensure your resume is ATS-friendly with a clean format, crucial for job applications in {current_year}"
                         ]
                     },
                     # Default formatting checks
