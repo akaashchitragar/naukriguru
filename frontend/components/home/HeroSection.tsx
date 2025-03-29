@@ -10,30 +10,85 @@ interface HeroSectionProps {
 }
 
 const HeroSection: React.FC<HeroSectionProps> = ({ onLoginClick }) => {
-  // Add state to control when animations should start
   const [isClient, setIsClient] = useState(false);
   
-  // Only enable animations after component mounts on client
   useEffect(() => {
     setIsClient(true);
   }, []);
   
   return (
-    <div className="relative overflow-hidden bg-gradient-primary py-24 md:py-36" suppressHydrationWarning>
-      {/* Background decorative elements */}
-      <div className="absolute inset-0 overflow-hidden opacity-20">
-        <div className="absolute -top-24 -left-24 h-96 w-96 rounded-full bg-primary-yellow blur-3xl"></div>
-        <div className="absolute top-1/2 right-0 h-80 w-80 rounded-full bg-secondary-yellow blur-3xl"></div>
-        <div className="absolute bottom-0 left-1/3 h-64 w-64 rounded-full bg-light-blue blur-3xl"></div>
+    <div className="relative overflow-hidden bg-gradient-to-br from-primary-blue via-primary-blue/95 to-blue-900 py-24 md:py-36" suppressHydrationWarning>
+      {/* Enhanced background decorative elements */}
+      <div className="absolute inset-0 overflow-hidden">
+        {/* Animated gradient orbs */}
+        <motion.div 
+          animate={{ 
+            scale: [1, 1.2, 1],
+            opacity: [0.1, 0.15, 0.1],
+            rotate: 360
+          }}
+          transition={{
+            duration: 20,
+            repeat: Infinity,
+            ease: "linear"
+          }}
+          className="absolute -top-1/4 -right-1/4 w-[800px] h-[800px] bg-gradient-radial from-primary-yellow to-transparent rounded-full blur-3xl"
+        />
+        <motion.div 
+          animate={{ 
+            scale: [1.2, 1, 1.2],
+            opacity: [0.05, 0.1, 0.05],
+            rotate: -360
+          }}
+          transition={{
+            duration: 25,
+            repeat: Infinity,
+            ease: "linear"
+          }}
+          className="absolute -bottom-1/4 -left-1/4 w-[1000px] h-[1000px] bg-gradient-radial from-light-blue to-transparent rounded-full blur-3xl"
+        />
+
+        {/* Enhanced grid pattern */}
+        <div 
+          className="absolute inset-0 opacity-[0.02]" 
+          style={{
+            backgroundImage: 'radial-gradient(circle, white 1px, transparent 1px)',
+            backgroundSize: '40px 40px'
+          }}
+        />
+
+        {/* Animated particles */}
+        {[...Array(20)].map((_, i) => (
+          <motion.div
+            key={i}
+            className="absolute w-1 h-1 bg-primary-yellow rounded-full"
+            initial={{ 
+              x: Math.random() * window.innerWidth,
+              y: Math.random() * window.innerHeight,
+              opacity: 0
+            }}
+            animate={{ 
+              y: [-20, 0, -20],
+              opacity: [0, 0.4, 0],
+              scale: [1, 1.5, 1]
+            }}
+            transition={{
+              duration: 3 + Math.random() * 2,
+              repeat: Infinity,
+              delay: i * 0.3,
+              ease: "easeInOut"
+            }}
+          />
+        ))}
       </div>
 
       <div className="container relative mx-auto px-4 md:px-6">
         <div className="grid items-center gap-12 md:grid-cols-2">
-          {/* Left column - Text content */}
+          {/* Left column - Enhanced text content */}
           <motion.div 
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5 }}
+            initial={{ opacity: 0, x: -50 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.8, ease: "easeOut" }}
             className="text-center md:text-left"
           >
             <motion.div 
@@ -43,96 +98,105 @@ const HeroSection: React.FC<HeroSectionProps> = ({ onLoginClick }) => {
                 duration: 0.5,
                 type: "spring",
                 stiffness: 400,
-                damping: 25
+                damping: 25,
+                delay: 0.2
               }}
-              whileHover={{ scale: 1.05 }}
+              whileHover={{ 
+                scale: 1.05,
+                transition: { duration: 0.2 }
+              }}
               whileTap={{ scale: 0.98 }}
-              className="mb-6 inline-flex items-center rounded-full border border-primary-yellow/30 bg-primary-yellow/10 px-3 py-1 text-sm text-primary-yellow"
+              className="mb-6 inline-flex items-center rounded-full border border-primary-yellow/30 bg-gradient-to-r from-primary-yellow/20 to-primary-yellow/5 px-4 py-1.5 text-sm text-primary-yellow backdrop-blur-sm"
             >
-              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="mr-1.5 h-4 w-4">
+              <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="mr-2 h-4 w-4 animate-pulse">
                 <path d="M16.5 7.5h-9v9h9v-9z" />
                 <path fillRule="evenodd" d="M8.25 2.25A.75.75 0 019 3v.75h2.25V3a.75.75 0 011.5 0v.75H15V3a.75.75 0 011.5 0v.75h.75a3 3 0 013 3v.75H21A.75.75 0 0121 9h-.75v2.25H21a.75.75 0 010 1.5h-.75V15H21a.75.75 0 010 1.5h-.75v.75a3 3 0 01-3 3h-.75V21a.75.75 0 01-1.5 0v-.75h-2.25V21a.75.75 0 01-1.5 0v-.75H9V21a.75.75 0 01-1.5 0v-.75h-.75a3 3 0 01-3-3v-.75H3A.75.75 0 013 15h.75v-2.25H3a.75.75 0 010-1.5h.75V9H3a.75.75 0 010-1.5h.75v-.75a3 3 0 013-3h.75V3a.75.75 0 01.75-.75zM6 6.75A.75.75 0 016.75 6h10.5a.75.75 0 01.75.75v10.5a.75.75 0 01-.75.75H6.75a.75.75 0 01-.75-.75V6.75z" clipRule="evenodd" />
               </svg>
-              AI-Powered Resume Analysis
+              <span className="relative">
+                AI-Powered Resume Analysis
+                <motion.span
+                  className="absolute -bottom-0.5 left-0 h-[2px] bg-gradient-to-r from-primary-yellow to-transparent"
+                  initial={{ width: "0%" }}
+                  animate={{ width: "100%" }}
+                  transition={{ duration: 0.8, delay: 0.5 }}
+                />
+              </span>
             </motion.div>
             
             <motion.h1 
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.1 }}
+              transition={{ duration: 0.8, delay: 0.3 }}
               className="mb-6 text-4xl font-bold leading-tight text-pure-white md:text-5xl lg:text-6xl"
             >
-              Your <span className="text-primary-yellow">AI Career Companion</span> for the Indian Job Market
+              Your{" "}
+              <motion.span 
+                className="text-primary-yellow relative inline-block"
+                whileHover={{
+                  scale: 1.05,
+                  transition: { duration: 0.2 }
+                }}
+              >
+                AI Career Companion
+                <motion.div
+                  className="absolute -bottom-1 left-0 h-1 w-full bg-gradient-to-r from-primary-yellow via-primary-yellow to-transparent"
+                  initial={{ width: 0 }}
+                  animate={{ width: "100%" }}
+                  transition={{ duration: 0.8, delay: 0.8 }}
+                />
+              </motion.span>
+              {" "}for the Indian Job Market
             </motion.h1>
             
             <motion.p 
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.5, delay: 0.2 }}
-              className="mb-8 text-lg text-gray-300 md:pr-8"
+              transition={{ duration: 0.8, delay: 0.4 }}
+              className="mb-8 text-lg text-gray-200 md:pr-8 leading-relaxed"
             >
               Job Craft revolutionizes your job search with smart, localized resume optimization and job matching services built specifically for the Indian market.
             </motion.p>
-            <div className="flex flex-col space-y-4 sm:flex-row sm:space-y-0 sm:space-x-4 md:justify-start">
+
+            <motion.div 
+              initial={{ opacity: 0, y: 20 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.8, delay: 0.5 }}
+              className="flex flex-col space-y-4 sm:flex-row sm:space-y-0 sm:space-x-4 md:justify-start"
+            >
               <Link 
                 href="/auth/signup" 
-                className="rounded-lg bg-primary-yellow px-6 py-3 text-center font-medium text-primary-blue shadow-accent transition-all hover:bg-dark-yellow"
+                className="group relative overflow-hidden rounded-lg bg-primary-yellow px-6 py-3 text-center font-medium text-primary-blue shadow-accent transition-all hover:bg-dark-yellow hover:shadow-accent-hover"
               >
-                Get Started Free
-              </Link>
-            </div>
-            
-            {/* Trust indicators */}
-            <div className="mt-12">
-              <motion.div
-                initial={{ opacity: 0, y: 10 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ 
-                  delay: 0.8, 
-                  duration: 0.5,
-                  type: "spring",
-                  stiffness: 400,
-                  damping: 25
-                }}
-                className="mb-4 inline-flex items-center rounded-full border border-light-blue/30 bg-white/5 px-3 py-1 text-sm text-gray-300 backdrop-blur-sm"
-              >
-                <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="mr-1.5 h-4 w-4 text-primary-yellow">
-                  <path fillRule="evenodd" d="M8.603 3.799A4.49 4.49 0 0112 2.25c1.357 0 2.573.6 3.397 1.549a4.49 4.49 0 013.498 1.307 4.491 4.491 0 011.307 3.497A4.49 4.49 0 0121.75 12a4.49 4.49 0 01-1.549 3.397 4.491 4.491 0 01-1.307 3.497 4.491 4.491 0 01-3.497 1.307A4.49 4.49 0 0112 21.75a4.49 4.49 0 01-3.397-1.549 4.49 4.49 0 01-3.498-1.306 4.491 4.491 0 01-1.307-3.498A4.49 4.49 0 012.25 12c0-1.357.6-2.573 1.549-3.397a4.49 4.49 0 011.307-3.497 4.49 4.49 0 013.497-1.307zm7.007 6.387a.75.75 0 10-1.22-.872l-3.236 4.53L9.53 12.22a.75.75 0 00-1.06 1.06l2.25 2.25a.75.75 0 001.14-.094l3.75-5.25z" clipRule="evenodd" />
-                </svg>
-                Trusted by thousands of job seekers across India
-              </motion.div>
-              <div className="flex flex-wrap items-center justify-center gap-4 md:justify-start">
-                {[
-                  { name: 'TCS', delay: 0.9 },
-                  { name: 'Infosys', delay: 1.0 },
-                  { name: 'Wipro', delay: 1.1 },
-                  { name: 'HCL', delay: 1.2 },
-                  { name: 'Tech Mahindra', delay: 1.3 }
-                ].map((company) => (
-                  <motion.div
-                    key={company.name}
-                    initial={{ opacity: 0, scale: 0.9 }}
-                    animate={{ opacity: 1, scale: 1 }}
-                    whileHover={{ scale: 1.05, y: -2 }}
-                    transition={{ 
-                      delay: company.delay, 
-                      duration: 0.3,
-                      whileHover: { duration: 0.1 }
-                    }}
-                    className="rounded-md border border-light-blue/20 bg-white/5 px-3 py-1.5 text-sm font-medium text-gray-300 backdrop-blur-sm transition-all hover:border-primary-yellow/30 hover:text-primary-yellow"
+                <motion.span
+                  className="relative z-10 flex items-center justify-center gap-2"
+                  whileHover={{ scale: 1.05 }}
+                  whileTap={{ scale: 0.95 }}
+                >
+                  Get Started Free
+                  <svg 
+                    xmlns="http://www.w3.org/2000/svg" 
+                    className="h-5 w-5 transition-transform duration-300 group-hover:translate-x-1" 
+                    viewBox="0 0 20 20" 
+                    fill="currentColor"
                   >
-                    {company.name}
-                  </motion.div>
-                ))}
-              </div>
-            </div>
+                    <path fillRule="evenodd" d="M10.293 3.293a1 1 0 011.414 0l6 6a1 1 0 010 1.414l-6 6a1 1 0 01-1.414-1.414L14.586 11H3a1 1 0 110-2h11.586l-4.293-4.293a1 1 0 010-1.414z" clipRule="evenodd" />
+                  </svg>
+                </motion.span>
+                <motion.div
+                  className="absolute inset-0 -z-10 bg-gradient-to-r from-primary-yellow/0 via-white/20 to-primary-yellow/0"
+                  initial={{ x: "-100%" }}
+                  whileHover={{ x: "100%" }}
+                  transition={{ duration: 0.8 }}
+                />
+              </Link>
+            </motion.div>
           </motion.div>
 
-          {/* Right column - Image/Illustration */}
+          {/* Right column - Enhanced illustration */}
           <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.5, delay: 0.2 }}
+            initial={{ opacity: 0, scale: 0.9, x: 50 }}
+            animate={{ opacity: 1, scale: 1, x: 0 }}
+            transition={{ duration: 0.8, delay: 0.2 }}
             className="relative mx-auto h-[500px] w-full max-w-xl md:mx-0 md:h-[600px]"
           >
             <div className="absolute inset-0 flex items-center justify-center scale-125">
@@ -1022,60 +1086,69 @@ const HeroSection: React.FC<HeroSectionProps> = ({ onLoginClick }) => {
         </div>
       </div>
       
-      {/* Floating login button (visible on mobile) */}
+      {/* Enhanced floating login button */}
       <motion.button
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
+        initial={{ opacity: 0, scale: 0 }}
+        animate={{ opacity: 1, scale: 1 }}
         transition={{ delay: 1, duration: 0.5 }}
+        whileHover={{ scale: 1.1 }}
+        whileTap={{ scale: 0.9 }}
         onClick={onLoginClick}
-        className="fixed bottom-6 right-6 z-10 flex h-14 w-14 items-center justify-center rounded-full bg-primary-yellow text-primary-blue shadow-accent md:hidden"
+        className="fixed bottom-6 right-6 z-10 flex h-14 w-14 items-center justify-center rounded-full bg-gradient-to-br from-primary-yellow to-dark-yellow text-primary-blue shadow-accent backdrop-blur-sm hover:shadow-accent-hover transition-all duration-300 md:hidden"
       >
         <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" className="h-6 w-6">
           <path fillRule="evenodd" d="M7.5 6a4.5 4.5 0 119 0 4.5 4.5 0 01-9 0zM3.751 20.105a8.25 8.25 0 0116.498 0 .75.75 0 01-.437.695A18.683 18.683 0 0112 22.5c-2.786 0-5.433-.608-7.812-1.7a.75.75 0 01-.437-.695z" clipRule="evenodd" />
         </svg>
       </motion.button>
 
-      {/* Scroll down indicator */}
+      {/* Enhanced scroll down indicator */}
       <motion.div 
         className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center"
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
+        initial={{ opacity: 0, y: 20 }}
+        animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 2, duration: 0.5 }}
       >
-        <span className="text-primary-yellow text-sm font-medium mb-2">Scroll Down</span>
-        <div className="flex flex-col items-center">
-          {[0, 1, 2].map((index) => (
-            <motion.svg 
-              key={index}
-              xmlns="http://www.w3.org/2000/svg" 
-              width="24" 
-              height="14" 
-              viewBox="0 0 24 14" 
-              fill="none" 
-              className="-mt-2"
-              initial={{ opacity: 0.3 }}
-              animate={{ 
-                opacity: [0.3, 1, 0.3],
-                y: [0, 4, 0]
-              }}
-              transition={{
-                duration: 1.5,
-                delay: index * 0.2,
-                repeat: Infinity,
-                repeatType: "loop"
-              }}
-            >
-              <path 
-                d="M2 2L12 12L22 2" 
-                stroke="currentColor" 
-                strokeWidth="3" 
-                strokeLinecap="round" 
-                strokeLinejoin="round"
-                className="text-primary-yellow"
-              />
-            </motion.svg>
-          ))}
-        </div>
+        <motion.div 
+          className="flex flex-col items-center gap-2"
+          animate={{ 
+            y: [0, 8, 0],
+            scale: [1, 1.1, 1]
+          }}
+          transition={{
+            duration: 2,
+            repeat: Infinity,
+            ease: "easeInOut"
+          }}
+        >
+          <span className="text-primary-yellow text-sm font-medium tracking-wider">
+            Scroll Down
+          </span>
+          <motion.svg 
+            xmlns="http://www.w3.org/2000/svg" 
+            width="24" 
+            height="24" 
+            viewBox="0 0 24 24" 
+            fill="none" 
+            stroke="currentColor" 
+            className="text-primary-yellow"
+            strokeWidth="2" 
+            strokeLinecap="round" 
+            strokeLinejoin="round"
+            animate={{
+              y: [0, 4, 0],
+              opacity: [0.5, 1, 0.5]
+            }}
+            transition={{
+              duration: 2,
+              repeat: Infinity,
+              ease: "easeInOut",
+              delay: 0.2
+            }}
+          >
+            <line x1="12" y1="5" x2="12" y2="19"></line>
+            <polyline points="19 12 12 19 5 12"></polyline>
+          </motion.svg>
+        </motion.div>
       </motion.div>
     </div>
   );

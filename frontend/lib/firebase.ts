@@ -29,11 +29,26 @@ let analytics: Analytics | null = null;
 if (isBrowser) {
   try {
     // Validate that we have the required config
-    if (!firebaseConfig.apiKey || !firebaseConfig.projectId) {
-      console.error("Firebase configuration is incomplete. Check your environment variables.");
+    if (!firebaseConfig.apiKey || !firebaseConfig.projectId || !firebaseConfig.authDomain) {
+      console.error("Firebase configuration is incomplete. Check your environment variables:", {
+        apiKey: Boolean(firebaseConfig.apiKey), 
+        projectId: Boolean(firebaseConfig.projectId),
+        authDomain: Boolean(firebaseConfig.authDomain)
+      });
     } else {
+      console.log("Firebase config loaded successfully:", {
+        authDomain: firebaseConfig.authDomain,
+        projectId: firebaseConfig.projectId
+      });
+      
       // Initialize Firebase
-      app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
+      if (!getApps().length) {
+        app = initializeApp(firebaseConfig);
+        console.log("Firebase app initialized");
+      } else {
+        app = getApp();
+        console.log("Firebase app already initialized");
+      }
       
       // Initialize services with error handling
       try {
@@ -50,6 +65,9 @@ if (isBrowser) {
       
       try {
         auth = getAuth(app);
+        if (auth) {
+          console.log("Firebase Auth initialized successfully");
+        }
       } catch (error) {
         console.error("Auth initialization error:", error);
       }
@@ -57,8 +75,8 @@ if (isBrowser) {
       // Initialize Analytics conditionally
       try {
         isSupported().then(supported => {
-          if (supported) {
-            analytics = getAnalytics(app as FirebaseApp);
+          if (supported && app) {
+            analytics = getAnalytics(app);
           }
         }).catch(error => {
           console.error("Analytics initialization error:", error);
@@ -78,4 +96,5 @@ if (isBrowser) {
   auth = null;
 }
 
+// Export the initialized services
 export { app, db, storage, auth, analytics }; 

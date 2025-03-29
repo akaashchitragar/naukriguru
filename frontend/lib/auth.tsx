@@ -8,7 +8,7 @@ import {
   signOut, 
   onAuthStateChanged,
   GoogleAuthProvider,
-  signInWithRedirect,
+  signInWithPopup,
   getRedirectResult
 } from 'firebase/auth';
 import { auth } from './firebase';
@@ -19,7 +19,7 @@ interface AuthContextType {
   isInitialized: boolean;
   signIn: (email: string, password: string) => Promise<void>;
   signUp: (email: string, password: string) => Promise<void>;
-  signInWithGoogle: () => Promise<void>;
+  signInWithGoogle: () => Promise<User>;
   logout: () => Promise<void>;
 }
 
@@ -41,22 +41,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     if (auth) {
       try {
-        // Check for redirect result when component mounts
-        getRedirectResult(auth)
-          .then((result) => {
-            // This gives you a Google Access Token, you can use it to access the Google API
-            if (result) {
-              // The signed-in user info
-              const user = result.user;
-              setUser(user);
-            }
-          })
-          .catch((error) => {
-            console.error("Redirect result error:", error);
-          });
-
+        // Set up the auth state change listener to catch any auth changes
         const unsubscribe = onAuthStateChanged(auth, 
           (user) => {
+            console.log('Auth state changed. User:', user ? user.email : 'null');
             setUser(user);
             setLoading(false);
             setIsInitialized(true);
@@ -113,9 +101,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       if (!auth) throw new Error("Auth not initialized");
       const provider = new GoogleAuthProvider();
-      await signInWithRedirect(auth, provider);
-      // No need to return anything here as the redirect will take the user away from the page
-      // The result will be handled by getRedirectResult in the useEffect hook
+      // Add scopes if needed for more Google API access
+      provider.addScope('profile');
+      provider.addScope('email');
+      
+      // Set custom parameters for the auth provider
+      provider.setCustomParameters({
+        prompt: 'select_account'
+      });
+      
+      console.log('Starting Google sign-in with popup...');
+      const result = await signInWithPopup(auth, provider);
+      // Return the user info
+      return result.user;
     } catch (error) {
       console.error('Error signing in with Google:', error);
       throw error;

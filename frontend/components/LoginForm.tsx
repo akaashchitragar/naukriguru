@@ -34,10 +34,14 @@ export default function LoginForm() {
     setLoading(true);
 
     try {
-      await signInWithGoogle();
+      console.log('Initiating Google sign-in process with popup...');
+      const user = await signInWithGoogle();
+      console.log('Google sign-in successful:', user.email);
+      setLoading(false);
+      // No redirect needed as popup handles everything in the same page
     } catch (err: any) {
+      console.error('Google sign-in error:', err);
       setError(err.message || 'An error occurred with Google sign in');
-    } finally {
       setLoading(false);
     }
   };

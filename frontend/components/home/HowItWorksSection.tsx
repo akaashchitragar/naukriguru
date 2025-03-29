@@ -103,30 +103,30 @@ const HowItWorksSection: React.FC<HowItWorksSectionProps> = ({ onLoginClick }) =
   };
 
   return (
-    <section className="relative py-24 overflow-hidden bg-gradient-to-b from-blue-50/30 via-white to-blue-50/20" ref={containerRef}>
-      {/* Background decorative elements */}
+    <section className="relative py-24 overflow-hidden bg-gradient-to-b from-gray-50 via-white to-blue-50/30" ref={containerRef}>
+      {/* Enhanced background decorative elements */}
       <motion.div 
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ duration: 1 }}
-        className="absolute inset-0 pointer-events-none"
+        className="absolute inset-0 pointer-events-none overflow-hidden"
       >
         <motion.div 
           animate={{ 
             scale: [1, 1.1, 1],
-            opacity: [0.4, 0.2, 0.4],
+            opacity: [0.03, 0.05, 0.03],
           }}
           transition={{
             duration: 8,
             repeat: Infinity,
             ease: "linear"
           }}
-          className="absolute top-0 left-1/2 -translate-x-1/2 w-[1000px] h-[1000px] bg-gradient-radial from-gray-100/60 to-transparent opacity-50"
+          className="absolute -top-1/4 left-1/2 -translate-x-1/2 w-[1200px] h-[1200px] bg-gradient-radial from-primary-blue to-transparent opacity-50"
         />
         <motion.div 
           animate={{ 
             scale: [1, 1.2, 1],
-            opacity: [0.3, 0.5, 0.3],
+            opacity: [0.02, 0.04, 0.02],
           }}
           transition={{
             duration: 10,
@@ -134,7 +134,15 @@ const HowItWorksSection: React.FC<HowItWorksSectionProps> = ({ onLoginClick }) =
             ease: "linear",
             delay: 1
           }}
-          className="absolute bottom-0 left-0 w-[800px] h-[800px] bg-gradient-radial from-gray-100/40 to-transparent opacity-30"
+          className="absolute -bottom-1/4 -left-1/4 w-[1000px] h-[1000px] bg-gradient-radial from-primary-yellow to-transparent opacity-30"
+        />
+        
+        {/* Enhanced grid pattern */}
+        <div className="absolute inset-0 opacity-[0.02]" 
+          style={{
+            backgroundImage: 'radial-gradient(circle, #1E40AF 1px, transparent 1px)',
+            backgroundSize: '40px 40px'
+          }}
         />
       </motion.div>
 
@@ -204,32 +212,61 @@ const HowItWorksSection: React.FC<HowItWorksSectionProps> = ({ onLoginClick }) =
                 ref={stepRefs[index]}
                 variants={itemVariants}
                 className="relative h-full"
-                whileHover={{ scale: 1.02 }}
-                transition={{ type: "spring", stiffness: 300 }}
+                whileHover={{ 
+                  scale: 1.02,
+                  transition: {
+                    duration: 0.2,
+                    ease: [0.23, 1, 0.32, 1]
+                  }
+                }}
               >
                 <div className="group relative h-full">
-                  {/* Step Number with improved styling */}
+                  {/* Enhanced Step Number */}
                   <motion.div
-                    whileHover={{ scale: 1.1 }}
-                    whileTap={{ scale: 0.95 }}
-                    className={`absolute -top-6 left-4 w-14 h-14 bg-white rounded-2xl shadow-lg flex items-center justify-center z-10 border border-gray-100/50 backdrop-blur-sm`}
+                    whileHover={{ 
+                      scale: 1.1,
+                      rotate: [0, -10, 10, 0],
+                      transition: {
+                        rotate: {
+                          duration: 0.5,
+                          ease: "easeInOut"
+                        }
+                      }
+                    }}
+                    className={`absolute -top-6 left-4 w-16 h-16 bg-white rounded-2xl shadow-xl flex items-center justify-center z-10 backdrop-blur-sm`}
+                    style={{
+                      boxShadow: '0 10px 25px -5px rgba(0,0,0,0.08), 0 8px 10px -6px rgba(0,0,0,0.03)'
+                    }}
                   >
                     <span className={`text-2xl font-bold bg-gradient-to-br ${step.gradientFrom} ${step.gradientTo} bg-clip-text text-transparent`}>
                       {step.number}
                     </span>
                   </motion.div>
 
-                  {/* Content with improved styling */}
+                  {/* Enhanced Content Card */}
                   <motion.div 
-                    className={`h-full pt-12 pb-8 px-6 bg-white rounded-2xl relative overflow-hidden group-hover:-translate-y-1 transition-all duration-300 border border-gray-100 shadow-[0_2px_8px_-3px_rgba(0,0,0,0.05)] group-hover:shadow-[0_8px_16px_-6px_rgba(0,0,0,0.1),0_4px_8px_-4px_rgba(0,0,0,0.03)] flex flex-col`}
+                    className={`h-full pt-14 pb-8 px-6 bg-gradient-to-b from-white via-white to-gray-50/50 rounded-2xl relative overflow-hidden group-hover:-translate-y-1 transition-all duration-200 shadow-xl hover:shadow-2xl`}
+                    style={{
+                      backdropFilter: 'blur(20px)',
+                      WebkitBackdropFilter: 'blur(20px)',
+                      boxShadow: '0 10px 30px -5px rgba(0,0,0,0.05), 0 8px 20px -6px rgba(0,0,0,0.02)'
+                    }}
                   >
-                    {/* Top gradient line with improved styling */}
-                    <div className={`absolute inset-x-0 top-0 h-[3px] bg-gradient-to-r ${step.gradientFrom} ${step.gradientTo}`} />
+                    {/* Enhanced top gradient line */}
+                    <div className={`absolute inset-x-0 top-0 h-2 bg-gradient-to-r ${step.gradientFrom} ${step.gradientTo} opacity-80 rounded-t-2xl`} />
                     
-                    {/* Icon with improved styling */}
+                    {/* Enhanced Icon */}
                     <div className="mb-6">
-                      <div className={`inline-flex p-3 rounded-xl bg-gray-50/80 backdrop-blur-sm`}>
-                        <div className={`${step.iconBg} p-2.5 rounded-lg shadow-sm`}>
+                      <div className={`inline-flex p-3 rounded-xl bg-gray-50/80 backdrop-blur-sm group-hover:scale-110 transition-transform duration-200`}>
+                        <div 
+                          className={`${step.iconBg} p-3 rounded-lg shadow-lg transform transition-all duration-200 group-hover:rotate-12`}
+                          style={{
+                            boxShadow: `0 10px 25px -3px ${step.iconBg === 'bg-orange-500' ? 'rgba(249, 115, 22, 0.3)' : 
+                                      step.iconBg === 'bg-purple-500' ? 'rgba(168, 85, 247, 0.3)' : 
+                                      step.iconBg === 'bg-indigo-500' ? 'rgba(99, 102, 241, 0.3)' : 
+                                      'rgba(59, 130, 246, 0.3)'}`
+                          }}
+                        >
                           <div className="text-white w-6 h-6">
                             {step.icon}
                           </div>
@@ -237,16 +274,25 @@ const HowItWorksSection: React.FC<HowItWorksSectionProps> = ({ onLoginClick }) =
                       </div>
                     </div>
 
-                    <h3 className={`text-xl font-semibold mb-4 bg-gradient-to-br ${step.gradientFrom} ${step.gradientTo} bg-clip-text text-transparent`}>
+                    {/* Enhanced Title */}
+                    <h3 className={`text-xl font-bold mb-4 bg-gradient-to-br ${step.gradientFrom} ${step.gradientTo} bg-clip-text text-transparent transform transition-all duration-200 group-hover:scale-105`}>
                       {step.title}
                     </h3>
                     
-                    <p className="text-gray-600 flex-grow">
+                    {/* Enhanced Description */}
+                    <p className="text-gray-600 flex-grow leading-relaxed">
                       {step.description}
                     </p>
 
-                    {/* Bottom decoration with improved styling */}
-                    <div className={`absolute bottom-0 right-0 w-24 h-24 bg-gradient-to-br ${step.gradientFrom} ${step.gradientTo} opacity-[0.03] rounded-tl-[100px] -z-1`} />
+                    {/* Enhanced decorative elements */}
+                    <div 
+                      className={`absolute -bottom-6 -right-6 w-32 h-32 bg-gradient-to-br ${step.gradientFrom} ${step.gradientTo} opacity-[0.03] rounded-full blur-xl transition-all duration-300 group-hover:opacity-[0.06] group-hover:scale-110`} 
+                    />
+                    
+                    {/* Added connecting lines between cards on larger screens */}
+                    {index < steps.length - 1 && (
+                      <div className="hidden lg:block absolute top-1/2 -right-3 w-6 h-0.5 bg-gradient-to-r from-gray-200/80 to-gray-300/80 transform -translate-y-1/2" />
+                    )}
                   </motion.div>
                 </div>
               </motion.div>

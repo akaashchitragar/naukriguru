@@ -88,19 +88,19 @@ const FeaturesSection: React.FC<FeaturesSectionProps> = ({ onLoginClick }) => {
   const [activeFeature, setActiveFeature] = useState<number | null>(null);
 
   return (
-    <section id="features" className="relative overflow-hidden bg-gradient-to-b from-white via-blue-50/30 to-white py-24">
+    <section id="features" className="relative overflow-hidden bg-gradient-to-b from-gray-50 via-white to-blue-50/30 py-24">
       {/* Enhanced background decorative elements */}
       <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute -top-24 -right-24 h-96 w-96 rounded-full bg-primary-blue opacity-5 blur-3xl"></div>
-        <div className="absolute bottom-0 left-1/3 h-64 w-64 rounded-full bg-primary-yellow opacity-5 blur-3xl"></div>
-        <div className="absolute top-1/2 left-1/4 h-32 w-32 rounded-full bg-light-blue opacity-5 blur-2xl"></div>
-        <div className="absolute top-1/3 right-1/4 h-48 w-48 rounded-full bg-primary-yellow opacity-5 blur-2xl"></div>
+        <div className="absolute -top-24 -right-24 h-96 w-96 rounded-full bg-primary-blue opacity-[0.03] blur-3xl"></div>
+        <div className="absolute bottom-0 left-1/3 h-64 w-64 rounded-full bg-primary-yellow opacity-[0.03] blur-3xl"></div>
+        <div className="absolute top-1/2 left-1/4 h-32 w-32 rounded-full bg-light-blue opacity-[0.03] blur-2xl"></div>
+        <div className="absolute top-1/3 right-1/4 h-48 w-48 rounded-full bg-primary-yellow opacity-[0.03] blur-2xl"></div>
         
-        {/* Grid pattern */}
-        <div className="absolute inset-0 opacity-[0.015]" 
+        {/* Enhanced Grid pattern */}
+        <div className="absolute inset-0 opacity-[0.02]" 
           style={{
             backgroundImage: 'radial-gradient(circle, #1E40AF 1px, transparent 1px)',
-            backgroundSize: '30px 30px'
+            backgroundSize: '40px 40px'
           }}
         ></div>
       </div>
@@ -165,24 +165,39 @@ const FeaturesSection: React.FC<FeaturesSectionProps> = ({ onLoginClick }) => {
                 damping: 15
               }}
               whileHover={{ 
-                y: -8, 
-                boxShadow: '0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04)',
-                transition: { type: "spring", stiffness: 400, damping: 25 }
+                y: -8,
+                scale: 1.02,
+                boxShadow: '0 20px 30px -10px rgba(0, 0, 0, 0.1), 0 10px 20px -10px rgba(0, 0, 0, 0.04)',
+                transition: {
+                  duration: 0.2,
+                  ease: [0.23, 1, 0.32, 1]
+                }
               }}
               onHoverStart={() => setActiveFeature(index)}
               onHoverEnd={() => setActiveFeature(null)}
-              className="group relative overflow-hidden rounded-2xl bg-pure-white p-8 shadow-sm transition-all duration-300"
+              className="group relative overflow-hidden rounded-2xl bg-gradient-to-b from-white via-white to-gray-50/50 p-8 shadow-lg transition-all duration-200 hover:shadow-2xl border border-gray-100"
+              style={{
+                backdropFilter: 'blur(20px)',
+                WebkitBackdropFilter: 'blur(20px)'
+              }}
             >
               {/* Feature Icon with enhanced animation */}
-              <div className={`relative mb-6 flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br ${feature.color} p-3 text-pure-white shadow-md transition-all duration-300 group-hover:scale-110`}>
+              <div 
+                className={`relative mb-6 flex h-16 w-16 items-center justify-center rounded-2xl bg-gradient-to-br ${feature.color} p-3 text-pure-white shadow-lg transition-all duration-300 group-hover:scale-110 group-hover:shadow-xl`}
+                style={{
+                  boxShadow: feature.highlight === 'primary' 
+                    ? '0 8px 20px -3px rgba(30, 64, 175, 0.3)' 
+                    : '0 8px 20px -3px rgba(252, 211, 77, 0.3)'
+                }}
+              >
                 {feature.icon}
                 
-                {/* Animated particles around icon */}
+                {/* Enhanced animated particles around icon */}
                 <motion.div 
                   className="absolute -inset-1 rounded-3xl"
                   initial={{ opacity: 0 }}
                   animate={activeFeature === index ? { 
-                    opacity: [0, 0.4, 0],
+                    opacity: [0, 0.6, 0],
                     scale: [0.8, 1.2, 0.8],
                   } : { opacity: 0 }}
                   transition={{
@@ -191,19 +206,25 @@ const FeaturesSection: React.FC<FeaturesSectionProps> = ({ onLoginClick }) => {
                     repeatType: "loop"
                   }}
                   style={{
-                    background: `linear-gradient(90deg, transparent, rgba(255,255,255,0.2), transparent)`,
+                    background: `linear-gradient(90deg, transparent, ${feature.highlight === 'primary' ? 'rgba(30, 64, 175, 0.3)' : 'rgba(252, 211, 77, 0.3)'}, transparent)`,
                   }}
                 />
               </div>
               
               {/* Feature Content with enhanced styling */}
               <div className="relative z-10">
-                <h3 className="mb-2 text-xl font-bold text-primary-blue group-hover:text-primary-yellow transition-colors duration-300">{feature.title}</h3>
-                <p className="mb-4 text-medium-gray">{feature.description}</p>
+                <h3 className="mb-3 text-xl font-bold text-primary-blue group-hover:text-primary-yellow transition-colors duration-300">{feature.title}</h3>
+                <p className="mb-4 text-medium-gray/90">{feature.description}</p>
                 
-                {/* Stats badge */}
-                <div className="inline-flex items-center rounded-full bg-gray-100 px-2.5 py-0.5 text-xs font-medium text-primary-blue">
-                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="mr-1 h-3 w-3">
+                {/* Enhanced Stats badge */}
+                <div 
+                  className={`inline-flex items-center rounded-full px-3 py-1 text-sm font-medium transition-all duration-300 ${
+                    feature.highlight === 'primary' 
+                      ? 'bg-primary-blue/10 text-primary-blue group-hover:bg-primary-blue/20' 
+                      : 'bg-primary-yellow/10 text-primary-yellow group-hover:bg-primary-yellow/20'
+                  }`}
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor" className="mr-1.5 h-4 w-4">
                     <path d="M15.98 1.804a1 1 0 00-1.96 0l-.24 1.192a1 1 0 01-.784.785l-1.192.238a1 1 0 000 1.962l1.192.238a1 1 0 01.785.785l.238 1.192a1 1 0 001.962 0l.238-1.192a1 1 0 01.785-.785l1.192-.238a1 1 0 000-1.962l-1.192-.238a1 1 0 01-.785-.785l-.238-1.192zM6.949 5.684a1 1 0 00-1.898 0l-.683 2.051a1 1 0 01-.633.633l-2.051.683a1 1 0 000 1.898l2.051.684a1 1 0 01.633.632l.683 2.051a1 1 0 001.898 0l.683-2.051a1 1 0 01.633-.633l2.051-.683a1 1 0 000-1.898l-2.051-.683a1 1 0 01-.633-.633L6.95 5.684z" />
                   </svg>
                   {feature.stats}
@@ -211,10 +232,19 @@ const FeaturesSection: React.FC<FeaturesSectionProps> = ({ onLoginClick }) => {
               </div>
               
               {/* Enhanced decorative elements */}
-              <div className={`absolute -right-4 -top-4 h-24 w-24 rounded-full bg-gradient-to-br ${feature.color} opacity-10 transition-all duration-300 group-hover:opacity-20 group-hover:scale-110`}></div>
+              <div 
+                className={`absolute -right-4 -top-4 h-32 w-32 rounded-full bg-gradient-to-br ${feature.color} opacity-5 blur-2xl transition-all duration-300 group-hover:opacity-10 group-hover:scale-110`}
+              ></div>
               
-              {/* Bottom Highlight with improved animation */}
-              <div className={`absolute bottom-0 left-0 h-1 w-0 bg-gradient-to-r ${feature.color} transition-all duration-500 group-hover:w-full`}></div>
+              {/* Enhanced Bottom Highlight */}
+              <div 
+                className={`absolute bottom-0 left-0 h-1 w-0 bg-gradient-to-r ${feature.color} transition-all duration-500 group-hover:w-full shadow-lg`}
+                style={{
+                  boxShadow: feature.highlight === 'primary' 
+                    ? '0 0 20px rgba(30, 64, 175, 0.3)' 
+                    : '0 0 20px rgba(252, 211, 77, 0.3)'
+                }}
+              ></div>
             </motion.div>
           ))}
         </div>

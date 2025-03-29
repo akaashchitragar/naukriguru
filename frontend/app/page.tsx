@@ -24,7 +24,9 @@ export default function Home() {
 
   // Only redirect if user is already logged in
   useEffect(() => {
+    // This will handle both redirect results and normal auth state changes
     if (user) {
+      console.log('User authenticated, redirecting to dashboard:', user.email);
       router.push('/dashboard');
     }
   }, [user, router]);

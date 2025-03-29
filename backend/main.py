@@ -40,7 +40,9 @@ app.add_middleware(
         "http://192.168.29.115:3000", 
         "http://192.168.29.115:3001",
         "https://naukri-guru.web.app",
-        "https://naukri-guru.firebaseapp.com"
+        "https://naukri-guru.firebaseapp.com",
+        "https://naukri-guru-dot-naukri-guru.el.r.appspot.com",
+        "https://naukri-guru.el.r.appspot.com"
     ],
     allow_credentials=True,
     allow_methods=["GET", "POST", "PUT", "DELETE", "OPTIONS"],

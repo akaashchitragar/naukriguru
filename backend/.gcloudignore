@@ -41,4 +41,7 @@ htmlcov/
 
 # Local development
 .git
-.github 
+.github
+
+# Don't ignore these files
+!serviceAccountKey.json 

@@ -4,7 +4,8 @@ instance_class: F2
 entrypoint: uvicorn main:app --host=0.0.0.0 --port=$PORT
 
 env_variables:
-  GOOGLE_APPLICATION_CREDENTIALS: serviceAccountKey.json
+  GOOGLE_API_KEY: "AIzaSyBQPPbYgiv1o56FakqrbS1p5LdpFJr9G-Y"
+  FIREBASE_SERVICE_ACCOUNT_KEY_PATH: "./serviceAccountKey.json"
 
 handlers:
   - url: /.*
