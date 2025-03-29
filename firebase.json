@@ -11,14 +11,14 @@
       "**/node_modules/**"
     ],
     "frameworksBackend": {
-      "region": "us-central1"
+      "region": "asia-south1"
     },
     "rewrites": [
       {
         "source": "/api/**",
         "run": {
           "serviceId": "backend",
-          "region": "us-central1"
+          "region": "asia-south1"
         }
       }
     ]
@@ -32,7 +32,8 @@
         ".git",
         "firebase-debug.log",
         "firebase-debug.*.log"
-      ]
+      ],
+      "region": "asia-south1"
     }
   ]
 }
