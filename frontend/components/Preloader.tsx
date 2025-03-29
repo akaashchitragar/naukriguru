@@ -13,7 +13,7 @@ const Preloader = ({ finishLoading }: PreloaderProps) => {
   
   // Messages specific to homepage
   const loadingMessages = [
-    'Welcome to NaukriGuru...',
+    'Welcome to JobCraft...',
     'Preparing your job search experience...',
     'Getting our AI ready...',
     'Setting up resume tools...',
@@ -24,21 +24,33 @@ const Preloader = ({ finishLoading }: PreloaderProps) => {
     // Make sure this effect runs only in the browser
     if (typeof window === 'undefined') return;
     
+    // Ensure the counter increments reliably
     const timer = setInterval(() => {
       setCounter(prev => {
-        if (prev >= 100) {
+        // Increase increment speed to ensure it completes
+        const newValue = prev + 2;
+        if (newValue >= 100) {
           clearInterval(timer);
           // Start fade out animation before finishing loading
           setFadeOut(true);
-          // Add a longer delay to ensure smooth transition
-          setTimeout(() => finishLoading(), 1000);
+          // Shorten the delay to prevent getting stuck
+          setTimeout(() => finishLoading(), 500);
           return 100;
         }
-        return prev + 1;
+        return newValue;
       });
     }, 20);
 
-    return () => clearInterval(timer);
+    // Add a safety timeout to ensure it doesn't get stuck
+    const safetyTimeout = setTimeout(() => {
+      setFadeOut(true);
+      finishLoading();
+    }, 5000); // Force completion after 5 seconds maximum
+
+    return () => {
+      clearInterval(timer);
+      clearTimeout(safetyTimeout);
+    };
   }, [finishLoading]);
 
   // Get the appropriate message based on loading progress
@@ -52,7 +64,7 @@ const Preloader = ({ finishLoading }: PreloaderProps) => {
       {/* Logo or brand element */}
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-deep-blue">
-          Naukri<span className="text-accent-orange">Guru</span>
+          Job<span className="text-accent-orange">Craft</span>
         </h1>
       </div>
       

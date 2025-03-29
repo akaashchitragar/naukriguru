@@ -67,6 +67,13 @@ async def analyze_resume_endpoint(
     try:
         user_id = user_info["user_id"]
 
+        # Basic validation - just ensure job description is not empty after trimming
+        if not job_description.strip():
+            raise HTTPException(
+                status_code=400, 
+                detail="Job description cannot be empty"
+            )
+        
         # Read the PDF file
         file_content = await file.read()
         
@@ -197,6 +204,13 @@ async def analyze_resume_dev(
 ):
     """Development endpoint without authentication for testing"""
     try:
+        # Basic validation - just ensure job description is not empty after trimming
+        if not job_description.strip():
+            raise HTTPException(
+                status_code=400, 
+                detail="Job description cannot be empty"
+            )
+            
         # Read and save the PDF file
         file_content = await file.read()
         file_url = save_resume_file(user_id, file.filename, file_content)

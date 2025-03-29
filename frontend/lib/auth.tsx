@@ -8,7 +8,8 @@ import {
   signOut, 
   onAuthStateChanged,
   GoogleAuthProvider,
-  signInWithPopup
+  signInWithRedirect,
+  getRedirectResult
 } from 'firebase/auth';
 import { auth } from './firebase';
 
@@ -40,6 +41,20 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
     if (auth) {
       try {
+        // Check for redirect result when component mounts
+        getRedirectResult(auth)
+          .then((result) => {
+            // This gives you a Google Access Token, you can use it to access the Google API
+            if (result) {
+              // The signed-in user info
+              const user = result.user;
+              setUser(user);
+            }
+          })
+          .catch((error) => {
+            console.error("Redirect result error:", error);
+          });
+
         const unsubscribe = onAuthStateChanged(auth, 
           (user) => {
             setUser(user);
@@ -98,7 +113,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       if (!auth) throw new Error("Auth not initialized");
       const provider = new GoogleAuthProvider();
-      await signInWithPopup(auth, provider);
+      await signInWithRedirect(auth, provider);
+      // No need to return anything here as the redirect will take the user away from the page
+      // The result will be handled by getRedirectResult in the useEffect hook
     } catch (error) {
       console.error('Error signing in with Google:', error);
       throw error;

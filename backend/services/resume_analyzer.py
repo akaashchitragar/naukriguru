@@ -179,68 +179,19 @@ async def analyze_resume_with_gemini(
             )
             if json_match:
                 json_str = json_match.group(1) or json_match.group(2) or json_match.group(0)
-                result = json.loads(json_str)
+                try:
+                    # Try again with cleaned JSON string
+                    json_str = json_str.strip()
+                    result = json.loads(json_str)
+                except json.JSONDecodeError as e:
+                    print(f"JSON decode error: {str(e)}")
+                    # Fallback to a default structure
+                    current_year = datetime.now().year
+                    result = create_default_analysis_result(current_year)
             else:
                 # Fallback to a default structure
                 current_year = datetime.now().year
-                result = {
-                    "match_score": 0,
-                    "feedback": "Failed to analyze resume. Please try again.",
-                    "skills_match": [],
-                    "improvement_areas": ["Unable to process the resume properly."],
-                    # Default values for issue metrics
-                    "searchability_issues": 0,
-                    "hard_skills_issues": 0,
-                    "soft_skills_issues": 0,
-                    "recruiter_tips_issues": 0,
-                    "formatting_issues": 0,
-                    # Default values for keyword metrics
-                    "keywords_match_percentage": 0,
-                    "experience_level_percentage": 0,
-                    "skills_relevance_percentage": 0,
-                    # Default values for job title and industry insights
-                    "job_title": "Unknown Position",
-                    "industry_insights": {
-                        "industry": "General",
-                        "title": f"General Resume Recommendations for {current_year}",
-                        "current_year": current_year,
-                        "market_overview": f"The job market in {current_year} emphasizes digital skills and adaptability across all industries. Companies are prioritizing candidates with demonstrated technical proficiency and soft skills.",
-                        "recommendations": [
-                            f"Tailor your resume to match the specific job description, focusing on {current_year}'s most demanded skills",
-                            f"Quantify achievements with specific metrics - a key differentiator in {current_year}'s competitive job market",
-                            f"Use action verbs to begin bullet points for greater impact with modern ATS systems",
-                            f"Include relevant keywords from the job description to pass the initial {current_year} ATS screening",
-                            f"Ensure your resume is ATS-friendly with a clean format, crucial for job applications in {current_year}"
-                        ]
-                    },
-                    # Default formatting checks
-                    "formatting_checks": {
-                        "font_check": {
-                            "passed": True,
-                            "details": [
-                                "Use standard fonts like Arial, Calibri, or Times New Roman for best ATS compatibility",
-                                "Keep font size between 10-12pt for body text",
-                                "Use consistent font styling throughout your resume"
-                            ]
-                        },
-                        "layout_check": {
-                            "passed": True,
-                            "details": [
-                                "Use a single-column layout for better ATS readability",
-                                "Avoid tables, text boxes, and complex formatting",
-                                "Use standard section headings like 'Experience' and 'Education'"
-                            ]
-                        },
-                        "page_setup_check": {
-                            "passed": True,
-                            "details": [
-                                "Use standard margins (0.5-1 inch)",
-                                "Save your resume as a PDF file",
-                                "Keep your resume to 1-2 pages maximum"
-                            ]
-                        }
-                    }
-                }
+                result = create_default_analysis_result(current_year)
 
         # Ensure all required fields are present
         required_fields = [
@@ -264,6 +215,7 @@ async def analyze_resume_with_gemini(
             # Formatting checks
             "formatting_checks"
         ]
+        
         for field in required_fields:
             if field not in result:
                 if field == "match_score":
@@ -272,37 +224,68 @@ async def analyze_resume_with_gemini(
                     result[field] = "No specific feedback available."
                 elif field in ["skills_match", "improvement_areas"]:
                     result[field] = []
-                elif field == "formatting_checks":
+                elif field in ["keywords_match_percentage", "experience_level_percentage", "skills_relevance_percentage"]:
+                    result[field] = 0  # Ensure percentage fields have default values
+                elif field == "job_title":
+                    result[field] = "Unknown Position"
+                elif field == "industry_insights":
+                    current_year = datetime.now().year
                     result[field] = {
-                        "font_check": {
-                            "passed": True,
-                            "details": [
-                                "Use standard fonts like Arial, Calibri, or Times New Roman for best ATS compatibility",
-                                "Keep font size between 10-12pt for body text",
-                                "Use consistent font styling throughout your resume"
-                            ]
-                        },
-                        "layout_check": {
-                            "passed": True,
-                            "details": [
-                                "Use a single-column layout for better ATS readability",
-                                "Avoid tables, text boxes, and complex formatting",
-                                "Use standard section headings like 'Experience' and 'Education'"
-                            ]
-                        },
-                        "page_setup_check": {
-                            "passed": True,
-                            "details": [
-                                "Use standard margins (0.5-1 inch)",
-                                "Save your resume as a PDF file",
-                                "Keep your resume to 1-2 pages maximum"
-                            ]
-                        }
+                        "industry": "General",
+                        "title": f"General Resume Recommendations for {current_year}",
+                        "current_year": current_year,
+                        "market_overview": f"The job market in {current_year} emphasizes digital skills and adaptability across all industries.",
+                        "recommendations": [
+                            f"Tailor your resume to match job descriptions",
+                            f"Quantify achievements with specific metrics",
+                            f"Use relevant keywords for ATS systems",
+                            f"Ensure your resume has a clean, professional format",
+                            f"Highlight your most relevant skills first"
+                        ]
                     }
+                elif field == "formatting_checks":
+                    result[field] = create_default_formatting_checks()
                 else:
                     # Default to 0 for all numeric metrics
                     result[field] = 0
         
+        # Validate numeric fields to ensure they are integers or can be converted to integers
+        numeric_fields = [
+            "match_score", 
+            "keywords_match_percentage", 
+            "experience_level_percentage", 
+            "skills_relevance_percentage",
+            "searchability_issues",
+            "hard_skills_issues",
+            "soft_skills_issues",
+            "recruiter_tips_issues",
+            "formatting_issues"
+        ]
+        
+        for field in numeric_fields:
+            try:
+                # Try to convert the value to an integer if it's not already
+                if not isinstance(result[field], (int, float)):
+                    result[field] = int(float(str(result[field]).strip()))
+            except (ValueError, TypeError):
+                # If conversion fails, set a default value
+                result[field] = 0
+                
+        # Ensure nested fields exist and have proper values
+        if "industry_insights" in result and isinstance(result["industry_insights"], dict):
+            if "recommendations" not in result["industry_insights"] or not isinstance(result["industry_insights"]["recommendations"], list):
+                result["industry_insights"]["recommendations"] = []
+                
+        # Ensure formatting_checks structure is valid
+        if "formatting_checks" in result:
+            for check_type in ["font_check", "layout_check", "page_setup_check"]:
+                if check_type not in result["formatting_checks"] or not isinstance(result["formatting_checks"][check_type], dict):
+                    result["formatting_checks"][check_type] = {"passed": True, "details": []}
+                if "details" not in result["formatting_checks"][check_type] or not isinstance(result["formatting_checks"][check_type]["details"], list):
+                    result["formatting_checks"][check_type]["details"] = []
+                if "passed" not in result["formatting_checks"][check_type]:
+                    result["formatting_checks"][check_type]["passed"] = True
+
         # Limit the size of arrays to improve response time
         if len(result.get("skills_match", [])) > 10:
             result["skills_match"] = result["skills_match"][:10]
@@ -383,3 +366,68 @@ async def analyze_resume_with_gemini(
                 }
             }
         }
+
+# Helper function to create default formatting checks
+def create_default_formatting_checks():
+    return {
+        "font_check": {
+            "passed": True,
+            "details": [
+                "Use standard fonts like Arial, Calibri, or Times New Roman for best ATS compatibility",
+                "Keep font size between 10-12pt for body text",
+                "Use consistent font styling throughout your resume"
+            ]
+        },
+        "layout_check": {
+            "passed": True,
+            "details": [
+                "Use a single-column layout for better ATS readability",
+                "Avoid tables, text boxes, and complex formatting",
+                "Use standard section headings like 'Experience' and 'Education'"
+            ]
+        },
+        "page_setup_check": {
+            "passed": True,
+            "details": [
+                "Use standard margins (0.5-1 inch)",
+                "Save your resume as a PDF file",
+                "Keep your resume to 1-2 pages maximum"
+            ]
+        }
+    }
+
+# Helper function to create a default analysis result
+def create_default_analysis_result(current_year):
+    return {
+        "match_score": 0,
+        "feedback": "Failed to analyze resume. Please try again.",
+        "skills_match": [],
+        "improvement_areas": ["Unable to process the resume properly."],
+        # Default values for issue metrics
+        "searchability_issues": 0,
+        "hard_skills_issues": 0,
+        "soft_skills_issues": 0,
+        "recruiter_tips_issues": 0,
+        "formatting_issues": 0,
+        # Default values for keyword metrics
+        "keywords_match_percentage": 0,
+        "experience_level_percentage": 0,
+        "skills_relevance_percentage": 0,
+        # Default values for job title and industry insights
+        "job_title": "Unknown Position",
+        "industry_insights": {
+            "industry": "General",
+            "title": f"General Resume Recommendations for {current_year}",
+            "current_year": current_year,
+            "market_overview": f"The job market in {current_year} emphasizes digital skills and adaptability across all industries. Companies are prioritizing candidates with demonstrated technical proficiency and soft skills.",
+            "recommendations": [
+                f"Tailor your resume to match the specific job description, focusing on {current_year}'s most demanded skills",
+                f"Quantify achievements with specific metrics - a key differentiator in {current_year}'s competitive job market",
+                f"Use action verbs to begin bullet points for greater impact with modern ATS systems",
+                f"Include relevant keywords from the job description to pass the initial {current_year} ATS screening",
+                f"Ensure your resume is ATS-friendly with a clean format, crucial for job applications in {current_year}"
+            ]
+        },
+        # Default formatting checks
+        "formatting_checks": create_default_formatting_checks()
+    }

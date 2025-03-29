@@ -54,7 +54,7 @@ export default function FeedbackSection({
   formattingChecks,
   scoreData
 }: FeedbackSectionProps) {
-  const [activeTab, setActiveTab] = useState<'all' | 'skills' | 'improvements' | 'industry' | 'formatting'>('all');
+  const [activeTab, setActiveTab] = useState<'all' | 'skills' | 'improvements' | 'industry' | 'formatting' | 'quicktips'>('all');
   
   // Format feedback into a short, crisp paragraph
   const formatFeedback = (feedbackText: string) => {
@@ -66,6 +66,57 @@ export default function FeedbackSection({
         {cleanedText}
       </p>
     );
+  };
+  
+  // Function to get quick resume tips for job search success
+  const getQuickTips = () => {
+    return [
+      {
+        title: "ATS Optimization",
+        description: "Applicant Tracking Systems filter resumes before they reach human eyes",
+        icon: (
+          <svg className="w-6 h-6 text-blue-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+          </svg>
+        ),
+        items: [
+          "Use standard section headings (Experience, Education, Skills)",
+          "Mirror keywords from the job description in your resume",
+          "Use a simple, single-column layout for better parsing",
+          "Save your resume as a PDF to preserve formatting"
+        ]
+      },
+      {
+        title: "Keyword Optimization",
+        description: "Strategic keyword placement increases your match rate",
+        icon: (
+          <svg className="w-6 h-6 text-purple-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M7 20l4-16m2 16l4-16M6 9h14M4 15h14" />
+          </svg>
+        ),
+        items: [
+          "Include industry-specific terminology and acronyms",
+          "List both hard skills (technical abilities) and soft skills (communication)",
+          "Add relevant certifications and tools you're proficient with",
+          "Use both spelled-out terms and acronyms (e.g., 'Artificial Intelligence (AI)')"
+        ]
+      },
+      {
+        title: "Experience Highlighting",
+        description: "Showcase relevant achievements aligned with the job requirements",
+        icon: (
+          <svg className="w-6 h-6 text-yellow-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+          </svg>
+        ),
+        items: [
+          "Quantify achievements with specific metrics and percentages",
+          "Use action verbs to begin each bullet point (Developed, Created, Led)",
+          "Tailor your experience to highlight most relevant responsibilities",
+          "Include results and outcomes, not just job duties"
+        ]
+      }
+    ];
   };
   
   // Use industry insights from API or fallback to a generic message
@@ -611,6 +662,16 @@ export default function FeedbackSection({
           Overall Assessment
         </button>
         <button
+          onClick={() => setActiveTab('quicktips')}
+          className={`px-4 py-3 font-medium text-sm transition-all ${
+            activeTab === 'quicktips'
+              ? 'text-deep-blue border-b-2 border-deep-blue'
+              : 'text-gray-500 hover:text-deep-blue'
+          }`}
+        >
+          Quick Tips
+        </button>
+        <button
           onClick={() => setActiveTab('skills')}
           className={`px-4 py-3 font-medium text-sm transition-all ${
             activeTab === 'skills'
@@ -655,7 +716,7 @@ export default function FeedbackSection({
       <div className="p-6 space-y-8">
         {/* General Feedback */}
         {(activeTab === 'all') && (
-          <div className="bg-gray-50 p-6 rounded-lg border border-gray-100 transition-all duration-300 hover:shadow-md">
+          <div className="bg-gradient-to-r from-indigo-50 to-blue-50 p-6 rounded-lg border border-blue-200 transition-all duration-300 hover:shadow-lg">
             <div className="flex items-start">
               <div className="flex-shrink-0 mt-1">
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-deep-blue" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -663,16 +724,142 @@ export default function FeedbackSection({
                 </svg>
               </div>
               <div className="ml-4 flex-1">
-                <h4 className="text-lg font-semibold mb-4 text-deep-blue">Overall Assessment</h4>
-                {formatFeedback(feedback)}
+                <h4 className="text-lg font-semibold mb-3 text-deep-blue">Overall Assessment</h4>
+                <div className="space-y-5">
+                  {/* Summary Card */}
+                  <div className="bg-white p-5 rounded-lg shadow-sm border border-blue-100">
+                    <div className="flex items-center mb-3 pb-2 border-b border-gray-100">
+                      <div className="p-2 bg-blue-100 rounded-full mr-3">
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-blue-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                      </div>
+                      <h5 className="text-md font-medium text-gray-800">Resume Summary</h5>
+                    </div>
+                    <div className="p-3 bg-gradient-to-r from-blue-50 to-indigo-50 rounded-md border-l-4 border-blue-400">
+                      {formatFeedback(feedback)}
+                    </div>
+                  </div>
+                  
+                  {/* Action Steps Card */}
+                  <div className="bg-white p-5 rounded-lg shadow-sm border border-blue-100">
+                    <div className="flex items-center mb-3 pb-2 border-b border-gray-100">
+                      <div className="p-2 bg-blue-100 rounded-full mr-3">
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-blue-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+                        </svg>
+                      </div>
+                      <h5 className="text-md font-medium text-gray-800">Next Steps</h5>
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <div className="flex items-start p-2 rounded-md hover:bg-blue-50 transition-all duration-200">
+                        <div className="flex-shrink-0 w-6 h-6 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center mr-3 text-white font-medium text-sm shadow-sm">
+                          1
+                        </div>
+                        <p className="text-gray-700 text-sm">
+                          <span className="font-medium">Explore the tabs above</span> to see detailed feedback on your skills, improvement areas, and industry insights.
+                        </p>
+                      </div>
+                      
+                      <div className="flex items-start p-2 rounded-md hover:bg-blue-50 transition-all duration-200">
+                        <div className="flex-shrink-0 w-6 h-6 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center mr-3 text-white font-medium text-sm shadow-sm">
+                          2
+                        </div>
+                        <p className="text-gray-700 text-sm">
+                          <span className="font-medium">Focus on improvement areas</span> to enhance your resume's effectiveness.
+                        </p>
+                      </div>
+                      
+                      <div className="flex items-start p-2 rounded-md hover:bg-blue-50 transition-all duration-200">
+                        <div className="flex-shrink-0 w-6 h-6 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center mr-3 text-white font-medium text-sm shadow-sm">
+                          3
+                        </div>
+                        <p className="text-gray-700 text-sm">
+                          <span className="font-medium">Check formatting guidelines</span> to ensure your resume is readable by both ATS systems and recruiters.
+                        </p>
+                      </div>
+                      
+                      <div className="flex items-start p-2 rounded-md hover:bg-blue-50 transition-all duration-200">
+                        <div className="flex-shrink-0 w-6 h-6 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center mr-3 text-white font-medium text-sm shadow-sm">
+                          4
+                        </div>
+                        <p className="text-gray-700 text-sm">
+                          <span className="font-medium">Review industry insights</span> to align your resume with current market trends and employer expectations.
+                        </p>
+                      </div>
+                      
+                      {onPrint && (
+                        <div className="flex items-start p-2 rounded-md hover:bg-blue-50 transition-all duration-200">
+                          <div className="flex-shrink-0 w-6 h-6 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center mr-3 text-white font-medium text-sm shadow-sm">
+                            5
+                          </div>
+                          <p className="text-gray-700 text-sm">
+                            <span className="font-medium">Print or save the detailed report</span> using the "Print Results" button at the top.
+                          </p>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
               </div>
+            </div>
+          </div>
+        )}
+        
+        {/* Quick Tips Section as a separate tab */}
+        {(activeTab === 'quicktips') && (
+          <div className="bg-gray-50 p-6 rounded-lg border border-gray-100 transition-all duration-300 hover:shadow-md">
+            <div className="flex items-start mb-4">
+              <div className="flex-shrink-0 mt-1">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-deep-blue" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                </svg>
+              </div>
+              <div className="ml-4">
+                <h4 className="text-lg font-semibold text-deep-blue">Quick Resume Tips</h4>
+                <p className="text-sm text-gray-600">Boost your chances of getting noticed by recruiters and ATS systems</p>
+              </div>
+            </div>
+            
+            <div className="space-y-4 mt-4">
+              {getQuickTips().map((tip, index) => (
+                <div 
+                  key={tip.title}
+                  className="border border-gray-200 rounded-lg overflow-hidden bg-white"
+                >
+                  <div className={`px-4 py-3 flex items-center border-b border-gray-200 ${
+                    tip.title === "ATS Optimization" ? "bg-gradient-to-r from-blue-50 to-blue-100" :
+                    tip.title === "Keyword Optimization" ? "bg-gradient-to-r from-purple-50 to-purple-100" :
+                    "bg-gradient-to-r from-yellow-50 to-yellow-100"
+                  }`}>
+                    <div className="mr-3">{tip.icon}</div>
+                    <div>
+                      <h5 className="font-medium text-gray-900">{tip.title}</h5>
+                      <p className="text-xs text-gray-500">{tip.description}</p>
+                    </div>
+                  </div>
+                  <div className="p-4">
+                    <ul className="space-y-2">
+                      {tip.items.map((item, i) => (
+                        <li key={i} className="flex items-start">
+                          <svg className="h-5 w-5 text-green-500 mr-2 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                          </svg>
+                          <span className="text-sm text-gray-700">{item}</span>
+                        </li>
+                      ))}
+                    </ul>
+                  </div>
+                </div>
+              ))}
             </div>
           </div>
         )}
         
         {/* Skills Match */}
         {(activeTab === 'skills') && (
-          <div className="bg-green-50 p-6 rounded-lg border border-green-100 transition-all duration-300 hover:shadow-md">
+          <div className="bg-gradient-to-r from-green-50 to-emerald-50 p-6 rounded-lg border border-green-200 transition-all duration-300 hover:shadow-lg">
             <div className="flex items-start">
               <div className="flex-shrink-0 mt-1">
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-green-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -680,20 +867,140 @@ export default function FeedbackSection({
                 </svg>
               </div>
               <div className="ml-4 flex-1">
-                <h4 className="text-lg font-semibold mb-3 text-green-700">Matching Skills</h4>
+                <h4 className="text-lg font-semibold mb-3 text-green-800">Matching Skills</h4>
+                <p className="text-sm text-green-700 mb-4 bg-green-100 p-3 rounded-md border-l-4 border-green-500">
+                  These skills from your resume align with the job requirements. Highlighting them can increase your chances of getting selected.
+                </p>
+                
                 {skillsMatch.length > 0 ? (
-                  <div className="flex flex-wrap gap-2">
-                    {skillsMatch.map((skill, index) => (
-                      <span 
-                        key={index} 
-                        className="inline-flex items-center px-3 py-1.5 rounded-full text-sm font-medium bg-green-100 text-green-800 shadow-sm"
-                      >
-                        {skill}
-                      </span>
-                    ))}
+                  <div className="space-y-6">
+                    {/* Categories */}
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                      {/* Technical Skills */}
+                      <div className="bg-white p-4 rounded-lg shadow-sm border border-green-100 hover:shadow-md transition-all duration-200">
+                        <div className="flex items-center mb-3">
+                          <div className="p-1.5 bg-green-100 rounded-md mr-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-green-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4" />
+                            </svg>
+                          </div>
+                          <h5 className="font-medium text-gray-800">Technical Skills</h5>
+                        </div>
+                        <div className="flex flex-wrap gap-2">
+                          {skillsMatch
+                            .filter(skill => isTechnicalSkill(skill))
+                            .map((skill, index) => (
+                              <span 
+                                key={index} 
+                                className="inline-flex items-center px-2.5 py-1.5 rounded-md text-sm font-medium bg-green-100 text-green-800 border border-green-200"
+                              >
+                                {skill}
+                              </span>
+                            ))}
+                          {skillsMatch.filter(skill => isTechnicalSkill(skill)).length === 0 && (
+                            <span className="text-sm text-gray-500 italic">No technical skills identified</span>
+                          )}
+                        </div>
+                      </div>
+                      
+                      {/* Soft Skills */}
+                      <div className="bg-white p-4 rounded-lg shadow-sm border border-green-100 hover:shadow-md transition-all duration-200">
+                        <div className="flex items-center mb-3">
+                          <div className="p-1.5 bg-green-100 rounded-md mr-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-green-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                            </svg>
+                          </div>
+                          <h5 className="font-medium text-gray-800">Soft Skills</h5>
+                        </div>
+                        <div className="flex flex-wrap gap-2">
+                          {skillsMatch
+                            .filter(skill => isSoftSkill(skill))
+                            .map((skill, index) => (
+                              <span 
+                                key={index} 
+                                className="inline-flex items-center px-2.5 py-1.5 rounded-md text-sm font-medium bg-emerald-100 text-emerald-800 border border-emerald-200"
+                              >
+                                {skill}
+                              </span>
+                            ))}
+                          {skillsMatch.filter(skill => isSoftSkill(skill)).length === 0 && (
+                            <span className="text-sm text-gray-500 italic">No soft skills identified</span>
+                          )}
+                        </div>
+                      </div>
+                      
+                      {/* Industry Knowledge */}
+                      <div className="bg-white p-4 rounded-lg shadow-sm border border-green-100 hover:shadow-md transition-all duration-200">
+                        <div className="flex items-center mb-3">
+                          <div className="p-1.5 bg-green-100 rounded-md mr-2">
+                            <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-green-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
+                            </svg>
+                          </div>
+                          <h5 className="font-medium text-gray-800">Industry Knowledge</h5>
+                        </div>
+                        <div className="flex flex-wrap gap-2">
+                          {skillsMatch
+                            .filter(skill => isIndustryKnowledge(skill))
+                            .map((skill, index) => (
+                              <span 
+                                key={index} 
+                                className="inline-flex items-center px-2.5 py-1.5 rounded-md text-sm font-medium bg-teal-100 text-teal-800 border border-teal-200"
+                              >
+                                {skill}
+                              </span>
+                            ))}
+                          {skillsMatch.filter(skill => isIndustryKnowledge(skill)).length === 0 && (
+                            <span className="text-sm text-gray-500 italic">No industry knowledge identified</span>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                    
+                    {/* All Skills */}
+                    <div className="bg-white p-5 rounded-lg shadow-sm border border-green-100">
+                      <div className="flex items-center justify-between mb-3 pb-2 border-b border-gray-100">
+                        <div className="flex items-center">
+                          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-green-700 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                          </svg>
+                          <h5 className="font-medium text-gray-800">All Matching Skills</h5>
+                        </div>
+                        <span className="text-sm font-medium px-2 py-1 bg-green-100 text-green-800 rounded-full">
+                          {skillsMatch.length} skills
+                        </span>
+                      </div>
+                      <div className="flex flex-wrap gap-2">
+                        {skillsMatch.map((skill, index) => (
+                          <span 
+                            key={index} 
+                            className="inline-flex items-center px-3 py-1.5 rounded-full text-sm font-medium bg-gradient-to-r from-green-50 to-green-100 text-green-800 border border-green-200 hover:shadow-sm transition-all duration-200"
+                          >
+                            {skill}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                    
+                    {/* Tips Card */}
+                    <div className="bg-green-100 p-4 rounded-lg flex items-center">
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-green-700 mr-3 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                      <p className="text-sm text-green-800 font-medium">
+                        Make these skills stand out in your resume by quantifying achievements and providing specific examples that demonstrate your expertise.
+                      </p>
+                    </div>
                   </div>
                 ) : (
-                  <p className="text-gray-500 italic">No matching skills identified.</p>
+                  <div className="text-center p-6 bg-white rounded-lg border border-dashed border-green-300">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12 mx-auto text-green-400 mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                    </svg>
+                    <p className="text-gray-500 italic mb-2">No matching skills identified.</p>
+                    <p className="text-sm text-gray-600">Try updating your resume with keywords from the job description to improve your match rate.</p>
+                  </div>
                 )}
               </div>
             </div>
@@ -702,7 +1009,7 @@ export default function FeedbackSection({
         
         {/* Improvement Areas */}
         {(activeTab === 'improvements') && (
-          <div className="bg-amber-50 p-6 rounded-lg border border-amber-100 transition-all duration-300 hover:shadow-md">
+          <div className="bg-gradient-to-r from-amber-50 to-amber-100 p-6 rounded-lg border border-amber-200 transition-all duration-300 hover:shadow-lg">
             <div className="flex items-start">
               <div className="flex-shrink-0 mt-1">
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-amber-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -710,20 +1017,35 @@ export default function FeedbackSection({
                 </svg>
               </div>
               <div className="ml-4 flex-1">
-                <h4 className="text-lg font-semibold mb-3 text-amber-700">Areas for Improvement</h4>
+                <h4 className="text-lg font-semibold mb-4 text-amber-800">Areas for Improvement</h4>
+                <p className="text-sm text-amber-700 mb-4 bg-amber-100 p-3 rounded-md border-l-4 border-amber-500">
+                  Address these areas to significantly improve your resume's effectiveness and match rate.
+                </p>
                 {improvementAreas.length > 0 ? (
-                  <ul className="space-y-3">
+                  <div className="space-y-4">
                     {improvementAreas.map((area, index) => (
-                      <li key={index} className="flex items-start bg-white p-3 rounded-md shadow-sm">
-                        <span className="text-amber-800 font-medium mr-3 text-base">
-                          {index + 1}.
-                        </span>
-                        <span className="text-gray-700 flex-1">{area.replace(/^[\*\-]\s*/, '')}</span>
-                      </li>
+                      <div 
+                        key={index} 
+                        className="flex items-start bg-white p-4 rounded-md shadow-sm border border-amber-200 hover:shadow-md transition-all duration-200"
+                      >
+                        <div className="flex-shrink-0 w-8 h-8 rounded-full bg-gradient-to-br from-amber-500 to-amber-600 flex items-center justify-center mr-3 text-white font-semibold shadow-sm">
+                          {index + 1}
+                        </div>
+                        <div className="flex-1">
+                          <p className="text-gray-800 leading-relaxed">
+                            {area.replace(/^[\*\-]\s*/, '')}
+                          </p>
+                        </div>
+                      </div>
                     ))}
-                  </ul>
+                  </div>
                 ) : (
-                  <p className="text-gray-500 italic">No specific improvement areas identified.</p>
+                  <div className="text-center p-6 bg-white rounded-lg border border-dashed border-amber-300">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12 mx-auto text-amber-400 mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <p className="text-gray-500 italic">No specific improvement areas identified. Your resume appears to be well-aligned with this position!</p>
+                  </div>
                 )}
               </div>
             </div>
@@ -732,32 +1054,279 @@ export default function FeedbackSection({
         
         {/* Industry-specific Recommendations */}
         {(activeTab === 'industry') && (
-          <div className="p-6 rounded-lg transition-all duration-300">
+          <div className="bg-gradient-to-r from-blue-50 to-indigo-50 p-6 rounded-lg border border-blue-200 transition-all duration-300 hover:shadow-lg">
             <div className="flex items-start">
               <div className="flex-shrink-0 mt-1">
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4" />
                 </svg>
               </div>
-              {getIndustryContent()}
+              <div className="ml-4 flex-1">
+                <h4 className="text-lg font-semibold mb-4 text-blue-800">Industry Insights</h4>
+                
+                {!industryInsights ? (
+                  <div className="text-center p-6 bg-white rounded-lg border border-dashed border-blue-300">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12 mx-auto text-blue-400 mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <p className="text-gray-500 italic">No industry-specific insights available.</p>
+                  </div>
+                ) : (
+                  <div className="space-y-6">
+                    {/* Industry Card */}
+                    <div className="bg-white rounded-lg shadow-sm border border-blue-100 overflow-hidden">
+                      <div className="p-4 bg-gradient-to-r from-blue-100 to-indigo-100 border-b border-blue-200">
+                        <div className="flex items-center">
+                          <div className="p-2 bg-white rounded-md shadow-sm mr-3">
+                            <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                            </svg>
+                          </div>
+                          <div>
+                            <h5 className="text-lg font-semibold text-blue-900">{industryInsights.title}</h5>
+                            <div className="flex flex-wrap items-center text-sm text-blue-700 mt-1">
+                              <span className="bg-blue-50 px-2.5 py-0.5 rounded-full font-medium mr-2">
+                                {industryInsights.industry}
+                              </span>
+                              {jobTitle && (
+                                <span className="bg-indigo-50 px-2.5 py-0.5 rounded-full font-medium mr-2">
+                                  {jobTitle}
+                                </span>
+                              )}
+                              <span className="text-gray-500">
+                                {industryInsights.current_year || new Date().getFullYear()}
+                              </span>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                      
+                      {/* Market Overview Section */}
+                      {industryInsights.market_overview && (
+                        <div className="p-4 border-b border-blue-100">
+                          <div className="flex">
+                            <div className="flex-shrink-0 mt-1 mr-3">
+                              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-blue-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+                              </svg>
+                            </div>
+                            <div>
+                              <h6 className="text-sm font-medium text-blue-800 mb-2">Market Overview</h6>
+                              <p className="text-sm text-gray-700 italic bg-blue-50 p-3 rounded-md border-l-3 border-blue-300">
+                                {industryInsights.market_overview}
+                              </p>
+                            </div>
+                          </div>
+                        </div>
+                      )}
+                    </div>
+                    
+                    {/* Recommendations Section */}
+                    <div className="bg-white rounded-lg shadow-sm border border-blue-100 overflow-hidden">
+                      <div className="p-4 border-b border-blue-100 bg-gradient-to-r from-blue-50 to-indigo-50">
+                        <div className="flex items-center">
+                          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-blue-700 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
+                          </svg>
+                          <h5 className="text-md font-semibold text-blue-800">Industry Recommendations</h5>
+                        </div>
+                      </div>
+                      <div className="p-4">
+                        <div className="space-y-4">
+                          {industryInsights.recommendations.map((recommendation, index) => (
+                            <div 
+                              key={index} 
+                              className="flex items-start p-3 rounded-md bg-white border border-blue-100 hover:border-blue-300 hover:shadow-sm transition-all duration-200"
+                            >
+                              <div className="flex-shrink-0 w-7 h-7 rounded-full bg-gradient-to-br from-blue-500 to-indigo-600 flex items-center justify-center mr-3 text-white font-medium text-sm shadow-sm">
+                                {index + 1}
+                              </div>
+                              <div className="flex-1">
+                                <p className="text-gray-700 leading-relaxed">
+                                  {recommendation.replace(/^[\*\-]\s*/, '')}
+                                </p>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    </div>
+                    
+                    {/* Industry Tips */}
+                    <div className="bg-blue-100 p-4 rounded-lg flex items-center">
+                      <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-blue-700 mr-3 flex-shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                      <p className="text-sm text-blue-800 font-medium">
+                        Following these industry-specific recommendations can significantly improve your resume's relevance and appeal to employers in this field.
+                      </p>
+                    </div>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         )}
 
         {/* Formatting Checks */}
         {(activeTab === 'formatting') && (
-          <div className="bg-purple-50 p-6 rounded-lg border border-purple-100 transition-all duration-300 hover:shadow-md">
+          <div className="bg-gradient-to-r from-purple-50 to-indigo-50 p-6 rounded-lg border border-purple-200 transition-all duration-300 hover:shadow-lg">
             <div className="flex items-start">
               <div className="flex-shrink-0 mt-1">
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 text-purple-600" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
                 </svg>
               </div>
-              {getFormattingContent()}
+              <div className="ml-4 flex-1">
+                <h4 className="text-lg font-semibold mb-4 text-purple-800">Resume Format Analysis</h4>
+                <p className="text-sm text-purple-700 mb-5 bg-purple-100 p-3 rounded-md border-l-4 border-purple-500">
+                  Proper formatting ensures your resume is readable by both ATS systems and human recruiters. Address the items below to improve your resume's presentation.
+                </p>
+                
+                {!formattingChecks ? (
+                  <div className="text-center p-6 bg-white rounded-lg border border-dashed border-purple-300">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-12 w-12 mx-auto text-purple-400 mb-3" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                    </svg>
+                    <p className="text-gray-500 italic">No formatting check results available.</p>
+                  </div>
+                ) : (
+                  <div className="space-y-6">
+                    {/* Font Check Section */}
+                    <div className="bg-white p-5 rounded-lg shadow-sm border border-purple-100">
+                      <div className="flex items-center mb-3 pb-2 border-b border-gray-100">
+                        <div className="p-1.5 bg-purple-100 rounded-md mr-3">
+                          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-purple-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16m-7 6h7" />
+                          </svg>
+                        </div>
+                        <h5 className="text-md font-medium text-gray-800 flex-grow">Font & Typography</h5>
+                      </div>
+                      <div className="space-y-2">
+                        {processDetails(formattingChecks.font_check.details).map((detail, index) => (
+                          <div 
+                            key={index} 
+                            className={`flex items-start p-2 rounded-md ${
+                              detail.status === 'passed' ? 'bg-green-50' :
+                              detail.status === 'failed' ? 'bg-red-50' : 'bg-amber-50'
+                            }`}
+                          >
+                            {renderStatusIcon(detail.status)}
+                            <span className="text-gray-700">{detail.text}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                    
+                    {/* Layout Check Section */}
+                    <div className="bg-white p-5 rounded-lg shadow-sm border border-purple-100">
+                      <div className="flex items-center mb-3 pb-2 border-b border-gray-100">
+                        <div className="p-1.5 bg-purple-100 rounded-md mr-3">
+                          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-purple-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 5a1 1 0 011-1h14a1 1 0 011 1v2a1 1 0 01-1 1H5a1 1 0 01-1-1V5zM4 13a1 1 0 011-1h6a1 1 0 011 1v6a1 1 0 01-1 1H5a1 1 0 01-1-1v-6zM16 13a1 1 0 011-1h2a1 1 0 011 1v6a1 1 0 01-1 1h-2a1 1 0 01-1-1v-6z" />
+                          </svg>
+                        </div>
+                        <h5 className="text-md font-medium text-gray-800 flex-grow">Layout & Structure</h5>
+                      </div>
+                      <div className="space-y-2">
+                        {processDetails(formattingChecks.layout_check.details).map((detail, index) => (
+                          <div 
+                            key={index} 
+                            className={`flex items-start p-2 rounded-md ${
+                              detail.status === 'passed' ? 'bg-green-50' :
+                              detail.status === 'failed' ? 'bg-red-50' : 'bg-amber-50'
+                            }`}
+                          >
+                            {renderStatusIcon(detail.status)}
+                            <span className="text-gray-700">{detail.text}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                    
+                    {/* Page Setup Check Section */}
+                    <div className="bg-white p-5 rounded-lg shadow-sm border border-purple-100">
+                      <div className="flex items-center mb-3 pb-2 border-b border-gray-100">
+                        <div className="p-1.5 bg-purple-100 rounded-md mr-3">
+                          <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-purple-700" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z" />
+                          </svg>
+                        </div>
+                        <h5 className="text-md font-medium text-gray-800 flex-grow">Page Setup & Dimensions</h5>
+                      </div>
+                      <div className="space-y-2">
+                        {processDetails(formattingChecks.page_setup_check.details).map((detail, index) => (
+                          <div 
+                            key={index} 
+                            className={`flex items-start p-2 rounded-md ${
+                              detail.status === 'passed' ? 'bg-green-50' :
+                              detail.status === 'failed' ? 'bg-red-50' : 'bg-amber-50'
+                            }`}
+                          >
+                            {renderStatusIcon(detail.status)}
+                            <span className="text-gray-700">{detail.text}</span>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                    
+                    {/* Summary Status */}
+                    <div className="bg-purple-100 p-4 rounded-lg mt-4 flex items-center justify-between">
+                      <div className="flex items-center">
+                        <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-purple-700 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        <span className="text-sm text-purple-800 font-medium">
+                          {(formattingChecks.font_check.passed && formattingChecks.layout_check.passed && formattingChecks.page_setup_check.passed) 
+                            ? "Your resume format is well-optimized!" 
+                            : "Fix the highlighted issues to improve your resume's formatting."}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         )}
       </div>
     </div>
   );
-} 
+}
+
+// Helper functions to categorize skills
+const isTechnicalSkill = (skill: string): boolean => {
+  const technicalKeywords = [
+    'programming', 'software', 'development', 'code', 'coding', 'technical', 'technology',
+    'java', 'python', 'javascript', 'react', 'angular', 'vue', 'node', 'sql', 'database',
+    'aws', 'cloud', 'devops', 'analytics', 'analysis', 'excel', 'machine learning', 'ai',
+    'algorithm', 'data', 'infrastructure', 'engineering', 'automation', 'security',
+    'testing', 'qa', 'backend', 'frontend', 'fullstack', 'mobile', 'web', 'design',
+    'architecture', 'system', 'network', 'hardware', 'linux', 'windows', 'git'
+  ];
+  
+  return technicalKeywords.some(keyword => 
+    skill.toLowerCase().includes(keyword.toLowerCase())
+  );
+};
+
+const isSoftSkill = (skill: string): boolean => {
+  const softSkillKeywords = [
+    'communication', 'teamwork', 'leadership', 'management', 'problem solving', 
+    'critical thinking', 'creative', 'creativity', 'time management', 'organization',
+    'adaptability', 'flexibility', 'interpersonal', 'presentation', 'public speaking',
+    'negotiation', 'persuasion', 'emotional intelligence', 'conflict resolution',
+    'collaboration', 'team player', 'verbal', 'written', 'listening', 'feedback',
+    'coaching', 'mentoring', 'training', 'detail-oriented', 'customer service',
+    'decision making', 'planning', 'prioritization', 'multitasking', 'stress management'
+  ];
+  
+  return softSkillKeywords.some(keyword => 
+    skill.toLowerCase().includes(keyword.toLowerCase())
+  ) && !isTechnicalSkill(skill);
+};
+
+const isIndustryKnowledge = (skill: string): boolean => {
+  // If it's neither technical nor soft, categorize as industry knowledge
+  return !isTechnicalSkill(skill) && !isSoftSkill(skill);
+}; 

@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import FeedbackCard from './FeedbackCard';
+import { motion } from 'framer-motion';
 
 interface ScoreDisplayProps {
   score: number;
@@ -26,12 +27,13 @@ export default function ScoreDisplay({
   softSkillsIssues,
   recruiterTipsIssues,
   formattingIssues,
-  keywordsMatchPercentage,
-  experienceLevelPercentage,
-  skillsRelevancePercentage,
+  keywordsMatchPercentage = 0,
+  experienceLevelPercentage = 0,
+  skillsRelevancePercentage = 0,
   onRescan
 }: ScoreDisplayProps) {
   const [animatedScore, setAnimatedScore] = useState(0);
+  const [activeTab, setActiveTab] = useState<'metrics'>('metrics');
   
   useEffect(() => {
     // Animate the score from 0 to the actual value
@@ -67,63 +69,156 @@ export default function ScoreDisplay({
     return "Your resume doesn't match well with this job. Consider major revisions.";
   };
 
+  // Helper function to get color classes based on percentage
+  const getColorClass = (percentage: number) => {
+    if (percentage >= 80) return "bg-green-500";
+    if (percentage >= 60) return "bg-yellow-500";
+    if (percentage >= 40) return "bg-orange-500";
+    return "bg-red-500";
+  };
+
+  // Helper function to get rating text based on percentage
+  const getRatingText = (percentage: number) => {
+    if (percentage >= 80) return "Excellent";
+    if (percentage >= 60) return "Good";
+    if (percentage >= 40) return "Fair";
+    return "Poor";
+  };
+
+  const tabs = [
+    { id: 'metrics', label: 'Core Metrics' }
+  ];
+
+  const fadeInUpVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: { opacity: 1, y: 0 }
+  };
+
   return (
     <div className="flex flex-col gap-6">
-      {/* Use the new FeedbackCard for main score display */}
+      {/* Main score display card */}
       <FeedbackCard 
         score={animatedScore} 
         message={getDetailedFeedback(score)}
         onRescan={onRescan}
       />
       
-      {/* Tips section with simplified UI */}
-      {(searchabilityIssues || hardSkillsIssues || softSkillsIssues || recruiterTipsIssues || formattingIssues) && (
-        <div className="p-5 rounded-lg bg-white shadow-sm border border-gray-100">
-          <h4 className="text-sm font-semibold text-gray-700 uppercase tracking-wider mb-4">Resume Tips</h4>
-          <div className="space-y-2 text-sm">
-            {searchabilityIssues && (
-              <div className="flex items-center">
-                <svg className="h-4 w-4 text-blue-500 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                </svg>
-                <span className="text-gray-700">Searchability Issues: <span className="font-medium">{searchabilityIssues}</span></span>
-              </div>
-            )}
-            {hardSkillsIssues && (
-              <div className="flex items-center">
-                <svg className="h-4 w-4 text-purple-500 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z" />
-                </svg>
-                <span className="text-gray-700">Hard Skills Issues: <span className="font-medium">{hardSkillsIssues}</span></span>
-              </div>
-            )}
-            {softSkillsIssues && (
-              <div className="flex items-center">
-                <svg className="h-4 w-4 text-green-500 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
-                </svg>
-                <span className="text-gray-700">Soft Skills Issues: <span className="font-medium">{softSkillsIssues}</span></span>
-              </div>
-            )}
-            {recruiterTipsIssues && (
-              <div className="flex items-center">
-                <svg className="h-4 w-4 text-yellow-500 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-                <span className="text-gray-700">Recruiter Tips Issues: <span className="font-medium">{recruiterTipsIssues}</span></span>
-              </div>
-            )}
-            {formattingIssues && (
-              <div className="flex items-center">
-                <svg className="h-4 w-4 text-red-500 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16m-7 6h7" />
-                </svg>
-                <span className="text-gray-700">Formatting Issues: <span className="font-medium">{formattingIssues}</span></span>
-              </div>
-            )}
-          </div>
+      {/* Tabs Navigation */}
+      <div className="bg-white rounded-xl shadow-md overflow-hidden">
+        <div className="border-b border-gray-200">
+          <nav className="flex -mb-px">
+            {tabs.map((tab) => (
+              <button
+                key={tab.id}
+                onClick={() => setActiveTab('metrics')}
+                className={`relative py-3 px-4 text-sm font-medium flex-1 text-center ${
+                  activeTab === tab.id
+                    ? 'border-b-2 border-blue-500 text-blue-600'
+                    : 'text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                }`}
+                aria-current={activeTab === tab.id ? 'page' : undefined}
+              >
+                {tab.label}
+              </button>
+            ))}
+          </nav>
         </div>
-      )}
+
+        <div className="p-5">
+          {/* Core Metrics Tab */}
+          {activeTab === 'metrics' && (
+            <motion.div 
+              variants={fadeInUpVariants}
+              initial="hidden"
+              animate="visible"
+              transition={{ duration: 0.3 }}
+              className="space-y-4"
+            >              
+              {/* Keywords Match */}
+              <div>
+                <div className="flex justify-between items-center mb-1">
+                  <div className="flex items-center">
+                    <svg className="w-4 h-4 text-blue-500 mr-1.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 5a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 10a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 15a1 1 0 011-1h6a1 1 0 110 2H4a1 1 0 01-1-1z" />
+                    </svg>
+                    <span className="text-sm font-medium text-gray-700">Keywords Match</span>
+                  </div>
+                  <div className="flex items-center">
+                    <span className="text-sm font-bold text-gray-800">{keywordsMatchPercentage}%</span>
+                    <span className="ml-2 text-xs px-2 py-0.5 rounded-full bg-gray-100 text-gray-700">
+                      {getRatingText(keywordsMatchPercentage)}
+                    </span>
+                  </div>
+                </div>
+                <div className="w-full h-2 bg-gray-200 rounded-full overflow-hidden">
+                  <motion.div 
+                    initial={{ width: 0 }}
+                    animate={{ width: `${keywordsMatchPercentage}%` }}
+                    transition={{ duration: 1, ease: "easeOut" }}
+                    className={`h-full ${getColorClass(keywordsMatchPercentage)}`}
+                  />
+                </div>
+              </div>
+              
+              {/* Experience Level */}
+              <div>
+                <div className="flex justify-between items-center mb-1">
+                  <div className="flex items-center">
+                    <svg className="w-4 h-4 text-purple-500 mr-1.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
+                    </svg>
+                    <span className="text-sm font-medium text-gray-700">Experience Level</span>
+                  </div>
+                  <div className="flex items-center">
+                    <span className="text-sm font-bold text-gray-800">{experienceLevelPercentage}%</span>
+                    <span className="ml-2 text-xs px-2 py-0.5 rounded-full bg-gray-100 text-gray-700">
+                      {getRatingText(experienceLevelPercentage)}
+                    </span>
+                  </div>
+                </div>
+                <div className="w-full h-2 bg-gray-200 rounded-full overflow-hidden">
+                  <motion.div 
+                    initial={{ width: 0 }}
+                    animate={{ width: `${experienceLevelPercentage}%` }}
+                    transition={{ duration: 1, ease: "easeOut", delay: 0.2 }}
+                    className={`h-full ${getColorClass(experienceLevelPercentage)}`}
+                  />
+                </div>
+              </div>
+              
+              {/* Skills Relevance */}
+              <div>
+                <div className="flex justify-between items-center mb-1">
+                  <div className="flex items-center">
+                    <svg className="w-4 h-4 text-green-500 mr-1.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+                    </svg>
+                    <span className="text-sm font-medium text-gray-700">Skills Relevance</span>
+                  </div>
+                  <div className="flex items-center">
+                    <span className="text-sm font-bold text-gray-800">{skillsRelevancePercentage}%</span>
+                    <span className="ml-2 text-xs px-2 py-0.5 rounded-full bg-gray-100 text-gray-700">
+                      {getRatingText(skillsRelevancePercentage)}
+                    </span>
+                  </div>
+                </div>
+                <div className="w-full h-2 bg-gray-200 rounded-full overflow-hidden">
+                  <motion.div 
+                    initial={{ width: 0 }}
+                    animate={{ width: `${skillsRelevancePercentage}%` }}
+                    transition={{ duration: 1, ease: "easeOut", delay: 0.4 }}
+                    className={`h-full ${getColorClass(skillsRelevancePercentage)}`}
+                  />
+                </div>
+              </div>
+
+              <div className="mt-4 text-xs text-gray-500 bg-gray-50 p-3 rounded-lg">
+                These metrics show how well your resume aligns with key aspects of the job description.
+              </div>
+            </motion.div>
+          )}
+        </div>
+      </div>
     </div>
   );
 } 

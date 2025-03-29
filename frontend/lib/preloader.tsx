@@ -34,8 +34,8 @@ export const PreloaderProvider = ({ children }: { children: React.ReactNode }) =
 
   // Determine the loading time based on the route
   const getLoadingTime = () => {
-    // Only homepage has preloader now, set a reasonable time
-    return 2000; // 2 seconds for homepage
+    // Reduced loading time to prevent getting stuck
+    return 1500; // 1.5 seconds for homepage
   };
 
   // Just use a simple timer to show the preloader for a fixed time
@@ -54,7 +54,15 @@ export const PreloaderProvider = ({ children }: { children: React.ReactNode }) =
       finishLoading();
     }, getLoadingTime());
 
-    return () => clearTimeout(timer);
+    // Add a safety timeout to force completion
+    const safetyTimeout = setTimeout(() => {
+      finishLoading();
+    }, 5000); // Force complete after 5 seconds maximum
+
+    return () => {
+      clearTimeout(timer);
+      clearTimeout(safetyTimeout);
+    };
   }, [pathname, shouldShowPreloader]);
 
   return (

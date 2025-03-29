@@ -4,7 +4,6 @@ import { useState, useCallback, useEffect, useRef } from 'react';
 import { ApiClient } from '@/lib/api';
 import ScoreDisplay from './ScoreDisplay';
 import FeedbackSection from './FeedbackSection';
-import CoreMetrics from './CoreMetrics';
 import { useAuth } from '@/lib/auth';
 import { useDropzone } from 'react-dropzone';
 import { useToast, ToastType } from './Toast';
@@ -668,15 +667,15 @@ export default function ResumeAnalyzer() {
             userId: user.uid,
             timestamp: serverTimestamp(),
             matchScore: result.match_score,
-            keywordsMatchPercentage: result.keywords_match_percentage,
-            experienceLevelPercentage: result.experience_level_percentage,
-            skillsRelevancePercentage: result.skills_relevance_percentage,
+            keywordsMatchPercentage: result.keywords_match_percentage || 0,
+            experienceLevelPercentage: result.experience_level_percentage || 0,
+            skillsRelevancePercentage: result.skills_relevance_percentage || 0,
             feedback: result.feedback,
-            skillsMatch: result.skills_match,
-            improvementAreas: result.improvement_areas,
-            industryInsights: result.industry_insights,
-            jobTitle: result.job_title,
-            formattingChecks: result.formatting_checks,
+            skillsMatch: result.skills_match || [],
+            improvementAreas: result.improvement_areas || [],
+            industryInsights: result.industry_insights || null,
+            jobTitle: result.job_title || '',
+            formattingChecks: result.formatting_checks || null,
             jobDescription: jobDescription
           };
           
@@ -808,6 +807,8 @@ export default function ResumeAnalyzer() {
       showToast(ToastType.ERROR, 'Please enter a job description');
       return;
     }
+    
+    // No minimum length validation for job description
     
     // Move to analyzing step
     setCurrentStep(AnalyzerStep.ANALYZING);
@@ -976,12 +977,8 @@ export default function ResumeAnalyzer() {
         return;
       }
       
-      // Validate job description length
-      if (jobDescription.trim().length < 50) {
-        setError('Please enter a more detailed job description for better analysis');
-        showToast(ToastType.WARNING, 'Your job description is too short for accurate analysis');
-        return;
-      }
+      // Remove minimum length validation to allow short descriptions
+      // Even if description is short, proceed with the analysis
       
       // Clear any existing error
       setError(null);
@@ -1946,19 +1943,7 @@ export default function ResumeAnalyzer() {
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ duration: 0.5, delay: 0.3 }}
                 >
-                  {/* Core Metrics positioned above FeedbackSection */}
-                  <motion.div
-                    initial={{ opacity: 0, y: 20 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ duration: 0.5, delay: 0.4 }}
-                  >
-                    <CoreMetrics 
-                      score={result.match_score}
-                      keywordsMatchPercentage={result.keywords_match_percentage}
-                      experienceLevelPercentage={result.experience_level_percentage}
-                      skillsRelevancePercentage={result.skills_relevance_percentage}
-                    />
-                  </motion.div>
+                  {/* Removed Core Metrics section as per request */}
                   
                   <motion.div 
                     className="rounded-xl"

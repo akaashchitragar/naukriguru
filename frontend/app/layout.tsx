@@ -10,7 +10,7 @@ import { PreloaderProvider } from '@/lib/preloader';
 const inter = Inter({ subsets: ['latin'] });
 
 export const metadata: Metadata = {
-  title: 'JobCraft.in - AI Resume Analysis',
+  title: 'JobCraft - AI Resume Analysis',
   description: 'AI-powered resume analysis for job seekers',
   icons: {
     icon: '/favicon.svg',
